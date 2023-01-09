@@ -1,0 +1,61 @@
+#
+mule:
+  env: local
+
+#API Manager config
+api:
+ autodiscovery:
+             id: ''
+
+# HTTP config
+http:              
+  papvntl1:    
+    sapi:
+      client_id: ''
+      client_secret: ''
+      host: 'sgst-papvn_tl1-gitp-sapi-5ircui.cci3mz.sgp-s1.cloudhub.io'
+      port: '8082'         
+      basepath: '/api/v1'
+      purchaseOrdersPath: '/purchase-orders'
+      purchaseResultsPath: '/purchase-results'
+      fplPath: '/fpl'
+      arStatementsPath: '/ar-statements'   
+           
+  papvntl2:    
+    sapi:
+      client_id: ''
+      client_secret: ''
+      host: 'sgst-papvn_tl2-gitp-sapi-5ircui.cci3mz.sgp-s1.cloudhub.io'
+      port: '8082'   
+      basepath: '/api/v1'
+      purchaseOrdersPath: '/purchase-orders'
+      purchaseResultsPath: '/purchase-results'
+      fplPath: '/fpl'
+      arStatementsPath: '/ar-statements'   
+          
+  pmpc:    
+    sapi:
+      client_id: ''
+      client_secret: ''
+      host: 'sgst-pmpc-gitp-sapi-5ircui.cci3mz.sgp-s1.cloudhub.io'
+      port: '8082'   
+      basepath: '/api'
+      purchaseOrdersPath: '/purchase-orders'
+      purchaseResultsPath: '/purchase-results'
+      fplPath: '/fpl'
+      arStatementsPath: '/ar-statements'
+
+#for-each properties
+foreach:
+  batchSize: '22000'
+             
+#Notification Configuration
+amq:
+  notification:
+    email:
+      publish: 
+        url: 'https://mq-us-east-1.anypoint.mulesoft.com/api/v1'
+        client:
+          id: '3b109a1dd2a84b238e8eaa858e572009'
+          secret: 'C569f53f48e44a0aA0c7EcA5115c872f'
+        path: 'mq-common-email-utility-sit'

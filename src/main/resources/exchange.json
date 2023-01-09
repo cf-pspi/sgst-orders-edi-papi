@@ -1,0 +1,1 @@
+{"main":"sgst-orders-edi-papi.raml","name":"SGST ORDERS EDI PAPI","classifier":"raml","tags":[],"dependencies":[{"groupId":"69195e0c-f771-4438-a4b2-58237c4947b6","assetId":"datatypes-library","version":"1.0.6"},{"groupId":"69195e0c-f771-4438-a4b2-58237c4947b6","assetId":"resource-types-library","version":"1.0.2"}]}

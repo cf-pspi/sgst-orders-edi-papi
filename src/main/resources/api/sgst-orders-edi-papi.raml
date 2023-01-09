@@ -1,0 +1,31 @@
+#%RAML 1.0
+title: SGST ORDERS EDI PAPI
+version: 1.0
+description: Process API to handle the material management operations
+
+uses:
+  resourceTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/resource-types-library/1.0.2/library-resource-types.raml
+
+/purchase-orders:
+  displayName: purchase orders
+  description: resource is used for accepting the Purchase Orders file from SAP and sending it to EPRO and IPS
+  post:
+  type: resourceTypesLib.edifile_collection
+
+/purchase-results:
+  displayName: purchase results
+  description: resource is used for accepting the Purchase Results file from SAP and sending it to ECITA
+  post:
+  type: resourceTypesLib.edifile_collection
+
+/fpl:
+  displayName: fpl data
+  description: resource is used for accepting the FPL file from SAP and sending it to Sales EDI
+  post:
+  type: resourceTypesLib.edifile_collection
+
+/ar-statements:
+  displayName: ar statements
+  description: resource is used for accepting the AR Statement file from SAP and sending it to CMS
+  post:
+  type: resourceTypesLib.edifile_collection

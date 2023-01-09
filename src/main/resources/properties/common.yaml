@@ -1,0 +1,19 @@
+# HTTP config 
+http:
+  port: "8082"
+  host: "localhost"
+  path: "/api/v1/*"
+  ReadTimeout: "30000"
+  sapi:   
+      max:      
+          connections: '-1'
+      connections:    
+          idle:    
+              timeout: '30000'
+      response:    
+          timeout: '300000'
+          buffer:    
+              size: '1024'
+      reconnection:
+         frequency: '5000'
+         count: '3'

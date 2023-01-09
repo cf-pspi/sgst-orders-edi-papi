@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:compression="http://www.mulesoft.org/schema/mule/compression" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<sub-flow name="sgst-purchase-orders-impl-sub-flow" doc:id="3d8f2c80-c488-4d59-8f13-c0e80ba36917" >
+		<ee:transform doc:name="initialise - Variables" doc:id="fece359a-0e41-4528-bf11-e804d2cfad32">
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+input payload multipart/form-data
+---
+payload.parts.'fileName'.content]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID" ><![CDATA[uuid()]]></ee:set-variable>
+				<ee:set-variable resource="dwl/ediMsgHeader.dwl" variableName="EDIMsgHeader" />
+			
+</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Parse EDIMsgHeader To Json" doc:id="9e6b2869-469b-49e2-ab87-1228091726f1">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="currentAction" ><![CDATA["SGST-ORDERS-EDI-PAPI_START_EVENT"]]></ee:set-variable>
+				<ee:set-variable resource="dwl/fileDetails.dwl" variableName="fileDetails" />
+			
+</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Log - Initial status" doc:id="3fdc4f2d-0cb0-4f4f-8fcd-59c283c46dd2" name="sgst-orders-edi-papi-logger" />
+		<flow-ref doc:name="sgst-orders-papi-impl_decompress-flow" doc:id="28f76d39-5fc3-427f-8456-1f1c1c00c753" name="sgst-orders-papi-impl_decompress-flow"/>
+		<ee:transform doc:name="Split File" doc:id="f04e2a74-c045-401b-8b4c-44849b643891" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json deferred=true
+---
+(payload[0] pluck $)]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="b1234223-229e-45b1-b9c3-4ae0e3a7e200" >
+			<when expression='#[vars.fileDetails.subsidiary == "PAPVN-TL1"]'>
+				<foreach doc:name="For Each" doc:id="d469134f-d25f-4ccb-8680-b81023b16c0c" collection="#[payload]" batchSize="${foreach.batchSize}">
+					<flow-ref doc:name="sgst-object-store-update-impl-flow" doc:id="d5aa241a-5b61-41dd-91a2-96f816aa715a" name="sgst-object-store-update-impl-flow"/>
+				</foreach>
+				<ee:transform doc:name="Set Request" doc:id="a52931ac-a4c1-4c13-b32d-323747c131fe">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"transactionId": vars.TransactionID,
+	"subsidiary": vars.fileDetails.subsidiary,
+	"externalSystem": vars.fileDetails.externalSystem
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="requestHeaders" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"flatFileName": vars.fileDetails.flatFileName,
+	"flatFileFormat": vars.fileDetails.flatFileFormat,
+	"flatFileExtension": vars.fileDetails.flatFileExtension
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<http:request method="POST" doc:name="Request PAPVNTL1" doc:id="c84531b4-b392-466d-a522-5eb6f195fc30" config-ref="PAPVNTL1_HTTP_Request_Configuration" path="${http.papvntl1.sapi.purchaseOrdersPath}"/>
+			</when>
+			<when expression='#[vars.fileDetails.subsidiary == "PAPVN-TL2"]'>
+				<foreach doc:name="For Each" doc:id="78100fa4-604e-43ad-b657-b9a5e2b8b5ae" collection="#[payload]" batchSize="${foreach.batchSize}">
+					<flow-ref doc:name="sgst-object-store-update-impl-flow" doc:id="1a3904c1-2a31-42d4-b0b8-0bd2610f169e" name="sgst-object-store-update-impl-flow"/>
+				</foreach>
+				<ee:transform doc:name="Set Request" doc:id="6a1e5036-31f5-4fab-afe2-4bf81bfd5823">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"transactionId": vars.TransactionID,
+	"subsidiary": vars.fileDetails.subsidiary,
+	"externalSystem": vars.fileDetails.externalSystem
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="requestHeaders" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "flatFileName": vars.fileDetails.flatFileName,
+  "flatFileFormat": vars.fileDetails.flatFileFormat,
+  "flatFileExtension": vars.fileDetails.flatFileExtension
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<http:request method="GET" doc:name="Request PAPVNTL2" doc:id="711ea4ef-fdd6-4465-868e-8ad236ae7bc6" config-ref="PAPVNTL2_HTTP_Request_Configuration" path="${http.papvntl2.sapi.purchaseOrdersPath}"/>
+			</when>
+			<when expression='#[vars.fileDetails.subsidiary == "PMPC"]'>
+				<foreach doc:name="For Each" doc:id="353305e9-1993-4610-851d-186e41434840" collection="#[payload]" batchSize="${foreach.batchSize}">
+					<flow-ref doc:name="sgst-object-store-update-impl-flow" doc:id="14916406-4616-4bbb-8b36-1f409cc62815" name="sgst-object-store-update-impl-flow"/>
+				</foreach>
+				<ee:transform doc:name="Set Request" doc:id="9c4da65c-72d2-4409-b10b-4d0b76bc4353">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "transactionId": vars.TransactionID,
+  "subsidiary": vars.fileDetails.subsidiary,
+  "externalSystem": vars.fileDetails.externalSystem
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="requestHeaders" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "flatFileName": vars.fileDetails.flatFileName,
+  "flatFileFormat": vars.fileDetails.flatFileFormat,
+  "flatFileExtension": vars.fileDetails.flatFileExtension
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<http:request method="GET" doc:name="Request PMPC" doc:id="d25596c2-d7c5-400c-bef9-07c915d1f5e8" config-ref="PMPC_HTTP_Request_Configuration" path="${http.pmpc.sapi.purchaseOrdersPath}"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="alert for any other module" doc:id="af5529db-41e6-41c6-920f-badba881485e" message='#["InvalidModule Provided"]'/>
+				<raise-error doc:name="Raise error" doc:id="d9d2591e-eee5-4371-93ae-631fd197d280" type="INVALID:MODULE_TYPE" description="The Provided module is Invalid"/>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Frame - Response" doc:id="1e5499cc-b936-4aa6-9e6d-971ce0205b06">
+			<ee:message>
+				<ee:set-payload resource="dwl/responsePayload.dwl" />
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

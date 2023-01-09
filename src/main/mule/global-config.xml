@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<!-- <configuration-properties doc:name="Configuration properties" doc:id="25c05da0-330c-4801-8837-37d6c66ead2d" file="properties\local.yaml" /> -->
+	 <http:listener-config name="sgst-pp-edi-eapi-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.ReadTimeout}"/>
+    </http:listener-config>
+	<!-- <api-gateway:autodiscovery apiId="${api.autodiscovery.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="bc5f4b4c-7303-4988-9784-4190dd3eae28" flowRef="sgst-pp-rationalization-edi-eapi-main" /> -->
+	<configuration-properties doc:name="Configuration properties" doc:id="057932e3-90cf-4dec-86a0-627e71a0055d" file="properties/${mule.env}.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="db4504d2-4231-4906-875a-1cbdd1f6fe3a" file="properties/${mule.env}.yaml" key="${secret.key}" />
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="90668947-829f-44a8-8cce-bb5e45b08aef" >
+		<anypoint-mq:connection clientId="${amq.notification.email.publish.client.id}" clientSecret="${amq.notification.email.publish.client.secret}" url="${amq.notification.email.publish.url}"/>
+	</anypoint-mq:config>
+	<configuration doc:name="Configuration" doc:id="de615457-ca54-4818-8f6e-2e1c8463ad76" defaultErrorHandler-ref="common-exception-handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="4118f3bf-9aba-42c8-8468-fc9f23e459ff" file="properties\common.yaml" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="f3447a8a-42bf-409c-8b05-9cf22cb91903" />
+	<http:request-config name="PAPVNTL1_HTTP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="23a46f5e-d02a-4740-9831-5bf8b14b51d2" basePath="${http.papvntl1.sapi.basepath}" >
+		<http:request-connection protocol="HTTPS" host="${http.papvntl1.sapi.host}" port="${http.papvntl1.sapi.port}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+			<reconnection >
+				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
+			</reconnection>
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<http:request-config name="PAPVNTL2_HTTP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="9e6e0ff3-99a6-4eb5-a7fb-910cbf86c42c" basePath="${http.papvntl2.sapi.basepath}" >
+		<http:request-connection protocol="HTTPS" host="${http.papvntl2.sapi.host}" port="${http.papvntl2.sapi.port}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+			<reconnection >
+				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
+			</reconnection>
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<http:request-config name="PMPC_HTTP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="d3e14dce-c5ae-489e-a427-740437cece86" basePath="${http.pmpc.sapi.basepath}" >
+		<http:request-connection protocol="HTTPS" host="${http.pmpc.sapi.host}" port="${http.pmpc.sapi.port}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+			<reconnection >
+				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
+			</reconnection>
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<error-handler name="common-exception-handler" doc:id="de40c810-bb4c-4e78-bf51-77523c132373" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ab1015a3-7809-414c-81e9-5ff8c6988bb4" type="COMPRESSION:COULD_NOT_DECOMPRESS, COMPRESSION:INVALID_ARCHIVE, COMPRESSION:TOO_MANY_ENTRIES" >
+			<logger level="INFO" doc:name="Log - Error" doc:id="90668947-829f-44a8-8cce-bb5e45b08aef" message='Error Occured In processing - #[error] ' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="5ae57fa0-c5c4-498c-af64-c1c82f57a3dd">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="errorCode"><![CDATA[%dw 2.0
+output application/java
+---
+"500"]]></ee:set-variable>
+					<ee:set-variable variableName="errorType"><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable> 
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="b7da20fe-e413-4285-aab3-7eb1553b7c67">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8d39ae21-d80e-4da4-b60c-4d741c1d5227" type="APIKIT:BAD_REQUEST">
+			<logger level="INFO" doc:name="Log - Error" doc:id="f85d28ef-6229-439c-87bd-c241a3ee297d" message='Error Occured In processing - #[error]' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="ca7ddc63-c6c8-489e-bf38-78215a9d6986">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="errorCode"><![CDATA[%dw 2.0
+output application/java
+---
+'400']]></ee:set-variable>
+					<ee:set-variable variableName="errorType"><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="d9ba49af-4ef1-47e7-84cf-957cfc7c6aa2">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6eb4a404-584d-4da3-a1c6-9b16a21ca57f" type="APIKIT:NOT_FOUND" >
+			<logger level="INFO" doc:name="Log - Error" doc:id="724095c3-eb34-4e3e-a304-d7474c7d02e9" message='Error Occured In processing - #[error]' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="7a8876f8-616c-4625-bfae-184dededa06f" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'404']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="07b1288d-4335-4b3b-8106-07c2c2b4f660">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="63b102fc-f310-46b4-acb2-0811f395d839" type="APIKIT:METHOD_NOT_ALLOWED" >
+			<logger level="INFO" doc:name="Log - Error" doc:id="9b1a15df-e8c8-4838-8b45-15b58f7138a6" message='Error Occured In processing - #[error] ' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="66f389fb-a10d-41b8-acfc-be2868d36e62" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'404']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable> 
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="62e9b88e-25cd-49d2-9c67-c30619a0a1e9" >
+				<ee:message >
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="26a3ba15-cdf9-45c4-8804-a39041bc8d58" type="APIKIT:NOT_ACCEPTABLE" >
+			<logger level="INFO" doc:name="Log - Error" doc:id="5a67fc79-cb3e-492b-9e14-facda55599e5" message='Error Occured In processing - #[error]' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="64fc83b0-2bdb-4496-b6dd-4175b7a9c6cc" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'406']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="82c7fb33-0710-4279-83bd-16523c13f38d">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="42990ce3-acb0-4ac9-8b67-a9d5ad37caf4" type="APIKIT:UNSUPPORTED_MEDIA_TYPE" >
+			<logger level="INFO" doc:name="Log - Error" doc:id="9239041f-8c29-499d-b256-29a80ecb23df" message='Error Occured In processing - #[error] ' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="b272c6e9-8ad2-4003-9d74-23a8577bdacd" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA['406']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA['SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="c4bafda6-3062-4324-90c3-99e87c04f248">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ba9eac9c-63a4-416d-a226-52c727f5f64c" type="APIKIT:NOT_IMPLEMENTED" >
+			<logger level="INFO" doc:name="Log - Error" doc:id="714e9e36-a551-4cf5-b639-0f6c1f89b3d3" message='Error Occured In processing - #[error]' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="8664161a-8c50-4a82-b54d-1d5cdee139a8" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'501']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="9b54baa2-9820-4973-aa89-1138dcc42677">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="261c06e4-2d8e-418c-bc8c-626c0809eec7" type="HTTP:BAD_REQUEST, HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:FORBIDDEN, HTTP:INTERNAL_SERVER_ERROR, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:PARSING, HTTP:RETRY_EXHAUSTED, HTTP:SECURITY, HTTP:SERVICE_UNAVAILABLE, HTTP:TIMEOUT, HTTP:TOO_MANY_REQUESTS, HTTP:UNAUTHORIZED, HTTP:UNSUPPORTED_MEDIA_TYPE">
+			<logger level="INFO" doc:name="Log - Error" doc:id="23014e40-c0d0-45f7-bd7b-38fcc0e218fb" message='Error Occured In processing - #[error]' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="87c8f797-3ef3-4f6d-a47b-5bd2e7032a60" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'501']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="3e9100a3-1719-4d63-b7ee-12c5c447e360">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="26d6156f-637c-4c7d-95dc-2c6cd7988cce" type="HTTP:BAD_GATEWAY">
+			<logger level="INFO" doc:name="Log - Error" doc:id="7c510786-0446-494a-9d42-85cdd977c1fd" message='Error Occured In processing - #[error] ' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="04808a33-1f36-42fb-bc84-dadae55f84be" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'501']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="c95c01d4-841b-437b-b7fb-e690623828f5">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="da531d66-8057-47e2-8468-1501c07b062d" type="HTTP:GATEWAY_TIMEOUT">
+			<logger level="INFO" doc:name="Log - Error" doc:id="16863818-c619-4bd5-b6fc-4a11c3017080" message='Error Occured In processing - #[error] ' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="9008a05d-758c-4616-9c2f-5c13b69c6e97" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errorCode" ><![CDATA[%dw 2.0
+output application/java
+---
+'501']]></ee:set-variable>
+					<ee:set-variable variableName="errorType" ><![CDATA[%dw 2.0
+output application/java
+---
+'SYSTEM_ERROR']]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="3727e4eb-5bc4-463d-9c92-64bbf7693e1d">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4edd99cd-58b9-4a6b-8b49-c7d6e17433e7" type="ANY">
+			<logger level="INFO" doc:name="Log - Error" doc:id="545b6844-fe26-46d4-8a1f-0424ad5adac6" message='Error Occured In processing - #[error] ' />
+			<ee:transform doc:name="Initialise - Error Variables" doc:id="802b3312-bfb9-492b-b415-8e65dec2e9ef">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="errorCode"><![CDATA[%dw 2.0
+output application/java
+---
+"500"]]></ee:set-variable>
+					<ee:set-variable variableName="errorType"><![CDATA[%dw 2.0
+output application/java
+---
+"Internal"]]></ee:set-variable>
+					<ee:set-variable variableName="transactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Frame Error Message" doc:id="690659ea-7edd-4c43-bad8-cbd517c2148e">
+				<ee:message>
+					<ee:set-payload resource="dwl/errorResponse.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+</mule>

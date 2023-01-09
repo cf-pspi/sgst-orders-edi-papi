@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<sub-flow name="sgst-ar-statements-impl-sub-flow" doc:id="0fd99085-4f8a-48d7-bb3e-2a7037b7f348" >
+		<logger level="INFO" doc:name="Logger" doc:id="4398549c-6356-4a41-ba81-bc2a1d2dde0f" />
+	</sub-flow>
+</mule>

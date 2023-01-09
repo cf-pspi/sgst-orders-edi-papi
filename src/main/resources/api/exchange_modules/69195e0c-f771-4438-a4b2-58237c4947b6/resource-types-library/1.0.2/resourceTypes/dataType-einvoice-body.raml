@@ -1,0 +1,6 @@
+#%RAML 1.0 ResourceType
+type: object
+displayName: einvoice information in json format
+properties:
+  inv: !include dataType-einvoice-object.raml
+  items: !include dataType-einvoice-array.raml
