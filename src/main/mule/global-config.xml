@@ -17,6 +17,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
 	<!-- <configuration-properties doc:name="Configuration properties" doc:id="25c05da0-330c-4801-8837-37d6c66ead2d" file="properties\local.yaml" /> -->
+	 <apikit:config name="sgst-orders-edi-papi-config" api="sgst-orders-edi-papi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
 	 <json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="29f28a87-c074-400b-99ad-7d1396c443c8" environment="${mule.env}" />
 	 <http:listener-config name="sgst-pp-edi-eapi-httpListenerConfig">
         <http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.ReadTimeout}" protocol="HTTPS">
