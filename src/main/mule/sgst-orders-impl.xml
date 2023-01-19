@@ -16,10 +16,14 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 output application/java
 input payload multipart/form-data
 ---
-payload.parts.'fileName'.content]]></ee:set-payload>
+payload.parts.'File'.content]]></ee:set-payload>
 			</ee:message>
 			<ee:variables>
 				<ee:set-variable resource="dwl/ediMsgHeader.dwl" variableName="EDIMsgHeader" />
+				<ee:set-variable variableName="sapiHttpPath" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.maskedRequestPath]]></ee:set-variable>
 			
 </ee:variables>
 		</ee:transform>
@@ -27,30 +31,20 @@ payload.parts.'fileName'.content]]></ee:set-payload>
 			<ee:message />
 			<ee:variables>
 				<ee:set-variable resource="dwl/fileDetails.dwl" variableName="fileDetails" />
-				<ee:set-variable resource="dwl/eventAuditMessage.dwl" variableName="eventAuditMessage" />
 			
 </ee:variables>
 		</ee:transform>
-		<ee:transform doc:name="Set resourcePath" doc:id="7fa1501e-c5ea-475c-bf6c-95e5be8a9157" >
+		<ee:transform doc:name="Set ResourcePath and Params" doc:id="7fa1501e-c5ea-475c-bf6c-95e5be8a9157" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
-				<ee:set-variable variableName="resourcePath" ><![CDATA[%dw 2.0
-output application/java
----
-if(vars.fileDetails.externalSystem == "EPRO" or vars.fileDetails.externalSystem == "IPS")
-"${sapi.resource.path.po}"
-else if(vars.fileDetails.externalSystem == "ECITA")
-"${sapi.resource.path.pr}"
-else if(vars.fileDetails.externalSystem == "SALES_EDI")
-"${sapi.resource.path.fpl}"
-else if(vars.fileDetails.externalSystem == "CMS")
-"${sapi.resource.path.arStatements}"
-else
-"InvalidResourcePath"]]></ee:set-variable>
+				<ee:set-variable resource="dwl/applicationCode.dwl" variableName="applicationCode" />
+				<ee:set-variable resource="dwl/dataTypeCode.dwl" variableName="dataTypeCode" />
+				<ee:set-variable resource="dwl/resourcePath.dwl" variableName="resourcePath" />
+				<ee:set-variable resource="dwl/eventAuditMessage.dwl" variableName="eventAuditMessage" />
 			</ee:variables>
 		</ee:transform>
-		<json-logger:logger doc:name="Logger" doc:id="9fa40065-1d05-4ca9-b646-6df4ee0c21b1" config-ref="JSON_Logger_Config" message='#["Start of the transaction for correlation Id " ++ vars.TransactionID]'>
+		<json-logger:logger doc:name="Log Initial Status" doc:id="9fa40065-1d05-4ca9-b646-6df4ee0c21b1" config-ref="JSON_Logger_Config" message='#["Start of the transaction for correlation Id " ++ vars.TransactionID]'>
 			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -74,22 +68,12 @@ output application/json deferred=true
 				</foreach>
 				<ee:transform doc:name="Set Request" doc:id="a52931ac-a4c1-4c13-b32d-323747c131fe">
 					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  "flatFileExtension": vars.fileDetails.flatFileExtension,
-  "subsidiary": vars.fileDetails.subsidiary,
-  "transactionId": vars.TransactionID,
-  "flatFileFormat": vars.fileDetails.flatFileFormat,
-  "flatFileName": vars.fileDetails.flatFileName,
-  "externalSystem": vars.fileDetails.externalSystem
-}]]></ee:set-payload>
+						<ee:set-payload resource="dwl/papvntl1_sAPIRequest.dwl" />
 					</ee:message>
 					<ee:variables >
 					</ee:variables>
 				</ee:transform>
-				<json-logger:logger doc:name="Logger" doc:id="09d43ee3-4989-4ffc-b1c4-4f9b95343a5b" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL1 for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
+				<json-logger:logger doc:name="Log Before SAPI Request" doc:id="09d43ee3-4989-4ffc-b1c4-4f9b95343a5b" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL1 for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
 					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -104,7 +88,7 @@ output application/json
 	"X-Client-Secret": "${http.papvntl1.sapi.client_secret}"
 }]]]></http:headers>
 				</http:request>
-				<json-logger:logger doc:name="Logger" doc:id="85fa7f84-6817-4d22-8e41-ad4f59dc521a" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL1 for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
+				<json-logger:logger doc:name="Log After SAPI Request" doc:id="85fa7f84-6817-4d22-8e41-ad4f59dc521a" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL1 for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
 					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -117,22 +101,12 @@ output application/json
 				</foreach>
 				<ee:transform doc:name="Set Request" doc:id="6a1e5036-31f5-4fab-afe2-4bf81bfd5823">
 					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  "flatFileExtension": vars.fileDetails.flatFileExtension,
-  "subsidiary": vars.fileDetails.subsidiary,
-  "transactionId": vars.TransactionID,
-  "flatFileFormat": vars.fileDetails.flatFileFormat,
-  "flatFileName": vars.fileDetails.flatFileName,
-  "externalSystem": vars.fileDetails.externalSystem
-}]]></ee:set-payload>
+						<ee:set-payload resource="dwl/papvntl2_sAPIRequest.dwl" />
 					</ee:message>
 					<ee:variables >
 					</ee:variables>
 				</ee:transform>
-				<json-logger:logger doc:name="Logger" doc:id="5d5cc27c-796f-417f-8ff9-1b2d802b5f3e" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL2 for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
+				<json-logger:logger doc:name="Log Before SAPI Request" doc:id="5d5cc27c-796f-417f-8ff9-1b2d802b5f3e" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL2 for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
 					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -147,7 +121,7 @@ output application/json
 	"X-Client-Secret": "${http.papvntl2.sapi.client_secret}"
 }]]]></http:headers>
 				</http:request>
-				<json-logger:logger doc:name="Logger" doc:id="906feda2-16a2-4183-98fe-ea3b124bcca0" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL2 for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
+				<json-logger:logger doc:name="Log After SAPI Request" doc:id="906feda2-16a2-4183-98fe-ea3b124bcca0" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL2 for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
 					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -160,22 +134,12 @@ output application/json
 				</foreach>
 				<ee:transform doc:name="Set Request" doc:id="9c4da65c-72d2-4409-b10b-4d0b76bc4353">
 					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  "flatFileExtension": vars.fileDetails.flatFileExtension,
-  "subsidiary": vars.fileDetails.subsidiary,
-  "transactionId": vars.TransactionID,
-  "flatFileFormat": vars.fileDetails.flatFileFormat,
-  "flatFileName": vars.fileDetails.flatFileName,
-  "externalSystem": vars.fileDetails.externalSystem
-}]]></ee:set-payload>
+						<ee:set-payload resource="dwl/pmpc_sAPIRequest.dwl" />
 					</ee:message>
 					<ee:variables >
 					</ee:variables>
 				</ee:transform>
-				<json-logger:logger doc:name="Logger" doc:id="6c667fcb-f0f5-4b40-8d27-a3dcb717712e" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PMPC for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
+				<json-logger:logger doc:name="Log Before SAPI Request" doc:id="6c667fcb-f0f5-4b40-8d27-a3dcb717712e" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PMPC for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
 					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -190,7 +154,7 @@ output application/json
 	"X-Client-Secret": "${http.pmpc.sapi.client_secret}"
 }]]]></http:headers>
 				</http:request>
-				<json-logger:logger doc:name="Logger" doc:id="1b28d371-b128-4dd3-9cad-b98b8568078f" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PMPC for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
+				<json-logger:logger doc:name="Log After SAPI Request" doc:id="1b28d371-b128-4dd3-9cad-b98b8568078f" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PMPC for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
 					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 

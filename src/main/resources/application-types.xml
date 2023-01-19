@@ -155,4 +155,6 @@ type: string]]></types:shape>
   <types:enrichment select="#6a1e5036-31f5-4fab-afe2-4bf81bfd5823"/>
   <types:enrichment select="#9c4da65c-72d2-4409-b10b-4d0b76bc4353"/>
   <types:enrichment select="#fece359a-0e41-4528-bf11-e804d2cfad32"/>
+  <types:enrichment select="#dba010f3-8687-41fb-9bc1-99e376ebcc0b"/>
+  <types:enrichment select="#7fa1501e-c5ea-475c-bf6c-95e5be8a9157"/>
 </types:mule>

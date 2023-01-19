@@ -135,18 +135,14 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 	<sub-flow name="global-config-propagate-error" doc:id="15b2754d-de41-470f-aed4-a9df8a0646af" >
 		<ee:transform doc:name="Frame Error Message" doc:id="471f47eb-3533-40ba-90ce-968b01af97cb">
 				<ee:message>
+				<ee:set-payload resource="dwl/errorResponse.dwl" />
 
 				</ee:message>
 			<ee:variables >
-				<ee:set-variable resource="dwl/errorResponse.dwl" variableName="errorDetails" />
 			</ee:variables>
 			
 </ee:transform>
 		<json-logger:logger doc:name="Logger" doc:id="59e86344-48ca-4c80-84e1-530e9945954e" config-ref="JSON_Logger_Config" message='#["Exception occurred processing the transaction for correlation Id " ++ vars.TransactionID]' tracePoint="EXCEPTION" priority="ERROR">
-			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
-{
-    payload: JSONLoggerModule::stringifyNonJSON(vars.errorDetails) 
-}]]]></json-logger:content>
 		</json-logger:logger>
 	
 </sub-flow>

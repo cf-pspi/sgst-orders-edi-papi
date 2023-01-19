@@ -4,8 +4,10 @@ mule:
 
 #API Manager config
 api:
- autodiscovery:
-             id: ''
+  autodiscovery:
+    id: ''
+  flowDirection: 'outbound'
+  source: 'EAPI'
 
 # HTTP config
 http:              

@@ -19,7 +19,7 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 				<compression:zip-decompressor />
 			</compression:decompressor>
 		</compression:decompress>
-		<json-logger:logger doc:name="Logger" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="BEFORE_REQUEST" message='#["Decompression of file is Successful for correlation Id " ++ vars.TransactionID]'>
+		<json-logger:logger doc:name="Log After Decompress" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="AFTER_REQUEST" message='#["Decompression of file is Successful for correlation Id " ++ vars.TransactionID]'>
 			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
 {
     payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
@@ -43,5 +43,6 @@ leftPad(vars.counter,5,0) ++ "_" ++ vars.TransactionID]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
 					<os:store doc:name="Store" doc:id="f32d840d-ef06-4308-9d9a-be50509732e1" key="#[vars.objectStoreKey]" objectStore="Object_store"/>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="6f7d3618-1c02-4834-9a6a-1f42ae10807c" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for correlation Id " ++ vars.TransactionID ++ " and ObjectStoreKey: " ++ vars.objectStoreKey]'/>
 	</sub-flow>
 </mule>

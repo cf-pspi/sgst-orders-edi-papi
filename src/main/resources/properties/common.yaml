@@ -17,6 +17,7 @@ http:
       reconnection:
          frequency: '5000'
          count: '3'
+      testType: "T"
   pcs:   
       max:      
           connections: '-1'
@@ -31,3 +32,29 @@ http:
       reconnection:
          frequency: '2000'
          count: '2'
+
+#Routing Systems
+routing:
+  systems:
+    mm: 
+      po: ['EPRO','IPS']
+      pr: ['ECITA']
+    sd: ['SALES_EDI']
+    fi: ['CMS']
+
+#SAPI Header Properties
+sapi:
+  senderCode: 
+    papvntl1: '00027011'
+    papvntl2: "00025221"
+    pmpc: "00029474"
+  applicationCode:
+    purchaseOrder: '03'
+    purchaseResults: '03'
+    fpl: '03'
+    arStatements: '05'
+  dataTypeCode:
+    purchaseOrder: 'AR2'
+    purchaseResults: ''
+    fpl: 'P14'
+    arStatements: '05GALAXY'
