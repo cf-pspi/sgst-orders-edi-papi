@@ -60,6 +60,17 @@ http:
       path:
         backup: '/backup'
         notification: '/notification'
+  edifile:  
+    sapi:
+      client_id: ''
+      client_secret: ''
+      host: 'sgst-edifile-sap-sapi-5ircui.internal.cci3mz.sgp-s1.cloudhub.io'
+      port: '8081'   
+      basepath: '/api'
+      purchaseOrdersPath: '/po-response'
+      ediResultsPath: '/edi-results'
+      salesOrderPath: '/sales-order'
+      arStatementsPath: '/ar-statements'
 
 #External System
 sapi:
@@ -69,6 +80,17 @@ sapi:
       pr: "/purchase-results"
       fpl: "/fpl"
       arStatements: "/ar-statements"
+      
+      
+#SFTP config details
+sftp: 
+  common:
+    host: '10.86.48.62'
+    port: '22'
+    username: 'mule2Spana'
+    password: '![Ah7VGyRPyLrDqv16k0OVMjbRf2uKp3/Cv2E/9PGqmhk=]'
+    system: 'PISCAP Common Storage'
+    path: '/inbound/papvn-tl1/output/' #update paths
 
 #Notification Configuration
 notification:

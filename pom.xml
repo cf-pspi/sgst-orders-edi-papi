@@ -36,6 +36,12 @@
 				<extensions>true</extensions>
 				<configuration>
 					<classifier>mule-application</classifier>
+					<sharedLibraries>
+						<sharedLibrary>
+							<groupId>com.ibm.mq</groupId>
+							<artifactId>com.ibm.mq.allclient</artifactId>
+						</sharedLibrary>
+					</sharedLibraries>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -174,4 +180,17 @@
 		</pluginRepository>
 	</pluginRepositories> -->
 
+	<dependencies>
+		<dependency>
+			<groupId>com.mulesoft.connectors</groupId>
+			<artifactId>mule-ibm-mq-connector</artifactId>
+			<version>1.6.16</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.allclient</artifactId>
+			<version>9.3.1.0</version>
+		</dependency>
+	</dependencies>
 </project>
