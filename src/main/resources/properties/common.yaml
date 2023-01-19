@@ -17,3 +17,17 @@ http:
       reconnection:
          frequency: '5000'
          count: '3'
+  pcs:   
+      max:      
+          connections: '-1'
+      connections:    
+          idle:    
+              timeout: '60000'
+          timeout: '60000'
+      response:    
+          timeout: '30000'
+          buffer:    
+              size: '1024'
+      reconnection:
+         frequency: '2000'
+         count: '2'

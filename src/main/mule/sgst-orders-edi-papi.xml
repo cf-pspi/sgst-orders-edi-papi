@@ -11,7 +11,17 @@
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
-        <apikit:router config-ref="sgst-orders-edi-papi-config" />
+        <ee:transform doc:name="Set TransactionId" doc:id="4981b810-e1a5-4e36-9e43-552a3b32bfde" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="TransactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<apikit:router config-ref="sgst-orders-edi-papi-config" />
 		<error-handler ref="common-exception-handler" />
     </flow>
     <flow name="sgst-orders-edi-papi-console">
@@ -28,19 +38,19 @@
 		<error-handler ref="common-exception-handler" />
     </flow>
     <flow name="post:\ar-statements:multipart\form-data:sgst-orders-edi-papi-config">
-		<flow-ref doc:name="sgst-ar-statements-impl-sub-flow" doc:id="9f7a2e83-13bb-4b4c-8cc3-b40f2083da60" name="sgst-ar-statements-impl-sub-flow"/>
+		<flow-ref doc:name="sgst-impl-sub-flow" doc:id="9f7a2e83-13bb-4b4c-8cc3-b40f2083da60" name="sgst-impl-sub-flow"/>
 		<error-handler ref="common-exception-handler" />
     </flow>
     <flow name="post:\fpl:multipart\form-data:sgst-orders-edi-papi-config">
-		<flow-ref doc:name="sgst-fpl-impl-sub-flow" doc:id="6f6945ce-4ab4-477e-a9f8-856ef17622de" name="sgst-fpl-impl-sub-flow"/>
+		<flow-ref doc:name="sgst-impl-sub-flow" doc:id="6f6945ce-4ab4-477e-a9f8-856ef17622de" name="sgst-impl-sub-flow"/>
 		<error-handler ref="common-exception-handler" />
     </flow>
     <flow name="post:\purchase-orders:multipart\form-data:sgst-orders-edi-papi-config">
-		<flow-ref doc:name="sgst-purchase-orders-impl-sub-flow" doc:id="83bf72cd-d483-4cf0-aeee-2009f581fabe" name="sgst-purchase-orders-impl-sub-flow"/>
+		<flow-ref doc:name="sgst-impl-sub-flow" doc:id="83bf72cd-d483-4cf0-aeee-2009f581fabe" name="sgst-impl-sub-flow"/>
 		<error-handler ref="common-exception-handler" />
     </flow>
     <flow name="post:\purchase-results:multipart\form-data:sgst-orders-edi-papi-config">
-		<flow-ref doc:name="sgst-purchase-results-impl-sub-flow" doc:id="ef038856-4876-4f04-963e-625388786ca4" name="sgst-purchase-results-impl-sub-flow"/>
+		<flow-ref doc:name="sgst-impl-sub-flow" doc:id="ef038856-4876-4f04-963e-625388786ca4" name="sgst-impl-sub-flow"/>
 		<error-handler ref="common-exception-handler" />
     </flow>
 </mule>

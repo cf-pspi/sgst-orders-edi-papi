@@ -1,0 +1,87 @@
+#
+mule:
+  env: sit
+
+#API Manager config
+api:
+ autodiscovery:
+             id: ''
+
+# HTTP config
+http:              
+  papvntl1:    
+    sapi:
+      client_id: ''
+      client_secret: ''
+      host: 'sgst-papvn_tl1-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      port: '8081'         
+      basepath: '/api/v1'
+      purchaseOrdersPath: '/purchase-orders'
+      purchaseResultsPath: '/purchase-results'
+      fplPath: '/fpl'
+      arStatementsPath: '/ar-statements'   
+           
+  papvntl2:    
+    sapi:
+      client_id: ''
+      client_secret: ''
+      host: 'sgst-papvn_tl2-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      port: '8081'   
+      basepath: '/api/v1'
+      purchaseOrdersPath: '/purchase-orders'
+      purchaseResultsPath: '/purchase-results'
+      fplPath: '/fpl'
+      arStatementsPath: '/ar-statements'   
+          
+  pmpc:    
+    sapi:
+      client_id: 'cb6fea3d3d814a43a7042b301698194d'
+      client_secret: '671B051dA51146B8A6eA36490C1B2F05'
+      host: 'sgst-pmpc-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      port: '8081'   
+      basepath: '/api'
+      purchaseOrdersPath: '/purchase-orders'
+      purchaseResultsPath: '/purchase-results'
+      fplPath: '/fpl'
+      arStatementsPath: '/ar-statements'
+
+  keystore:
+    path: 'keystores/${mule.env}-keystore.jks'
+    alias: 'servercert'
+    password: 'winter@123'   
+
+  utilities:    
+    papi:
+      client_id: 'cb6fea3d3d814a43a7042b301698194d'
+      client_secret: '671B051dA51146B8A6eA36490C1B2F05'
+      host: 'sgst-audit-papi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      port: '8081'   
+      basepath: '/api/v1'
+      path:
+        backup: '/backup'
+        notification: '/notification'
+
+#External System
+sapi:
+  resource:
+    path:
+      po: "/purchase-orders"
+      pr: "/purchase-results"
+      fpl: "/fpl"
+      arStatements: "/ar-statements"
+
+#Notification Configuration
+notification:
+  email:
+    toaddress: ['sabeena.shaik@sg.panasonic.com','pavan.ramadugula@sg.panasonic.com','umamaheswara.karanam@sg.panasonic.com']
+
+#for-each properties
+foreach:
+  batchSize: '15000'
+             
+json:
+  logger:
+    application:
+      version: '1.0'
+      name: 'sample-json-logger'
+    env: 'local'

@@ -30,6 +30,9 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<classifier>mule-application</classifier>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.mulesoft.munit.tools</groupId>
@@ -130,6 +133,12 @@
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-file-connector</artifactId>
 			<version>1.3.4</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>69195e0c-f771-4438-a4b2-58237c4947b6</groupId>
+			<artifactId>json-logger</artifactId>
+			<version>2.1.0</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>

@@ -1,0 +1,211 @@
+<!-- [STUDIO:"Transform Message"]<?xml version="1.0" encoding="UTF-8"?> [STUDIO] -->
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:compression="http://www.mulesoft.org/schema/mule/compression" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<sub-flow name="sgst-impl-sub-flow" doc:id="3d8f2c80-c488-4d59-8f13-c0e80ba36917" >
+		<ee:transform doc:name="initialise - Variables" doc:id="fece359a-0e41-4528-bf11-e804d2cfad32">
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+input payload multipart/form-data
+---
+payload.parts.'fileName'.content]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable resource="dwl/ediMsgHeader.dwl" variableName="EDIMsgHeader" />
+			
+</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Parse EDIMsgHeader To Json" doc:id="9e6b2869-469b-49e2-ab87-1228091726f1">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable resource="dwl/fileDetails.dwl" variableName="fileDetails" />
+				<ee:set-variable resource="dwl/eventAuditMessage.dwl" variableName="eventAuditMessage" />
+			
+</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set resourcePath" doc:id="7fa1501e-c5ea-475c-bf6c-95e5be8a9157" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="resourcePath" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.fileDetails.externalSystem == "EPRO" or vars.fileDetails.externalSystem == "IPS")
+"${sapi.resource.path.po}"
+else if(vars.fileDetails.externalSystem == "ECITA")
+"${sapi.resource.path.pr}"
+else if(vars.fileDetails.externalSystem == "SALES_EDI")
+"${sapi.resource.path.fpl}"
+else if(vars.fileDetails.externalSystem == "CMS")
+"${sapi.resource.path.arStatements}"
+else
+"InvalidResourcePath"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Logger" doc:id="9fa40065-1d05-4ca9-b646-6df4ee0c21b1" config-ref="JSON_Logger_Config" message='#["Start of the transaction for correlation Id " ++ vars.TransactionID]'>
+			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<flow-ref doc:name="sgst-orders-papi-impl_decompress-flow" doc:id="28f76d39-5fc3-427f-8456-1f1c1c00c753" name="sgst-orders-papi-impl_decompress-flow"/>
+		<ee:transform doc:name="Split File" doc:id="f04e2a74-c045-401b-8b4c-44849b643891" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json deferred=true
+---
+(payload[0] pluck $)]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="b1234223-229e-45b1-b9c3-4ae0e3a7e200" >
+			<when expression='#[vars.fileDetails.subsidiary == "PAPVN-TL1"]'>
+				<foreach doc:name="For Each" doc:id="d469134f-d25f-4ccb-8680-b81023b16c0c" collection="#[payload]" batchSize="${foreach.batchSize}">
+					<flow-ref doc:name="sgst-object-store-update-impl-flow" doc:id="d5aa241a-5b61-41dd-91a2-96f816aa715a" name="sgst-object-store-update-impl-flow"/>
+				</foreach>
+				<ee:transform doc:name="Set Request" doc:id="a52931ac-a4c1-4c13-b32d-323747c131fe">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "flatFileExtension": vars.fileDetails.flatFileExtension,
+  "subsidiary": vars.fileDetails.subsidiary,
+  "transactionId": vars.TransactionID,
+  "flatFileFormat": vars.fileDetails.flatFileFormat,
+  "flatFileName": vars.fileDetails.flatFileName,
+  "externalSystem": vars.fileDetails.externalSystem
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+				<json-logger:logger doc:name="Logger" doc:id="09d43ee3-4989-4ffc-b1c4-4f9b95343a5b" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL1 for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
+					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+				</json-logger:logger>
+				<http:request method="POST" doc:name="Request PAPVNTL1" doc:id="c84531b4-b392-466d-a522-5eb6f195fc30" config-ref="PAPVNTL1_HTTP_Request_Configuration" path="#[vars.resourcePath]">
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json",
+	"X-Client-ID" : "${http.papvntl1.sapi.client_id}",
+	"X-Client-Secret": "${http.papvntl1.sapi.client_secret}"
+}]]]></http:headers>
+				</http:request>
+				<json-logger:logger doc:name="Logger" doc:id="85fa7f84-6817-4d22-8e41-ad4f59dc521a" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL1 for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
+					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+				</json-logger:logger>
+			</when>
+			<when expression='#[vars.fileDetails.subsidiary == "PAPVN-TL2"]'>
+				<foreach doc:name="For Each" doc:id="78100fa4-604e-43ad-b657-b9a5e2b8b5ae" collection="#[payload]" batchSize="${foreach.batchSize}">
+					<flow-ref doc:name="sgst-object-store-update-impl-flow" doc:id="1a3904c1-2a31-42d4-b0b8-0bd2610f169e" name="sgst-object-store-update-impl-flow"/>
+				</foreach>
+				<ee:transform doc:name="Set Request" doc:id="6a1e5036-31f5-4fab-afe2-4bf81bfd5823">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "flatFileExtension": vars.fileDetails.flatFileExtension,
+  "subsidiary": vars.fileDetails.subsidiary,
+  "transactionId": vars.TransactionID,
+  "flatFileFormat": vars.fileDetails.flatFileFormat,
+  "flatFileName": vars.fileDetails.flatFileName,
+  "externalSystem": vars.fileDetails.externalSystem
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+				<json-logger:logger doc:name="Logger" doc:id="5d5cc27c-796f-417f-8ff9-1b2d802b5f3e" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL2 for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
+					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+				</json-logger:logger>
+				<http:request method="POST" doc:name="Request PAPVNTL2" doc:id="711ea4ef-fdd6-4465-868e-8ad236ae7bc6" config-ref="PAPVNTL2_HTTP_Request_Configuration" path="${http.papvntl2.sapi.purchaseOrdersPath}">
+					<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json",
+	"X-Client-ID" : "${http.papvntl2.sapi.client_id}",
+	"X-Client-Secret": "${http.papvntl2.sapi.client_secret}"
+}]]]></http:headers>
+				</http:request>
+				<json-logger:logger doc:name="Logger" doc:id="906feda2-16a2-4183-98fe-ea3b124bcca0" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PAPVNTL2 for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
+					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+				</json-logger:logger>
+			</when>
+			<when expression='#[vars.fileDetails.subsidiary == "PMPC"]'>
+				<foreach doc:name="For Each" doc:id="353305e9-1993-4610-851d-186e41434840" collection="#[payload]" batchSize="${foreach.batchSize}">
+					<flow-ref doc:name="sgst-object-store-update-impl-flow" doc:id="14916406-4616-4bbb-8b36-1f409cc62815" name="sgst-object-store-update-impl-flow"/>
+				</foreach>
+				<ee:transform doc:name="Set Request" doc:id="9c4da65c-72d2-4409-b10b-4d0b76bc4353">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "flatFileExtension": vars.fileDetails.flatFileExtension,
+  "subsidiary": vars.fileDetails.subsidiary,
+  "transactionId": vars.TransactionID,
+  "flatFileFormat": vars.fileDetails.flatFileFormat,
+  "flatFileName": vars.fileDetails.flatFileName,
+  "externalSystem": vars.fileDetails.externalSystem
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+				<json-logger:logger doc:name="Logger" doc:id="6c667fcb-f0f5-4b40-8d27-a3dcb717712e" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PMPC for correlation ID"  ++ vars.TransactionID]' tracePoint="BEFORE_REQUEST">
+					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+				</json-logger:logger>
+				<http:request method="POST" doc:name="Request PMPC" doc:id="d25596c2-d7c5-400c-bef9-07c915d1f5e8" config-ref="PMPC_HTTP_Request_Configuration" path="${http.pmpc.sapi.purchaseOrdersPath}">
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json",
+	"X-Client-ID" : "${http.pmpc.sapi.client_id}",
+	"X-Client-Secret": "${http.pmpc.sapi.client_secret}"
+}]]]></http:headers>
+				</http:request>
+				<json-logger:logger doc:name="Logger" doc:id="1b28d371-b128-4dd3-9cad-b98b8568078f" config-ref="JSON_Logger_Config" message='#["File published successfully to SAPI PMPC for correlation ID"  ++ vars.TransactionID]' tracePoint="AFTER_REQUEST">
+					<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+				</json-logger:logger>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="alert for any other module" doc:id="af5529db-41e6-41c6-920f-badba881485e" message='#["InvalidModule Provided"]'/>
+				<raise-error doc:name="Raise error" doc:id="d9d2591e-eee5-4371-93ae-631fd197d280" type="INVALID:MODULE_TYPE" description="The Provided module is Invalid"/>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Frame - Response" doc:id="1e5499cc-b936-4aa6-9e6d-971ce0205b06">
+			<ee:message>
+				<ee:set-payload resource="dwl/responsePayload.dwl" />
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

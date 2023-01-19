@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
-	xmlns:file="http://www.mulesoft.org/schema/mule/file"
-	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:compression="http://www.mulesoft.org/schema/mule/compression"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:compression="http://www.mulesoft.org/schema/mule/compression"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
 	<sub-flow name="sgst-orders-papi-impl_decompress-flow" doc:id="b214380a-310b-41d3-85e5-07c105720d48" >
-		<ee:transform doc:name="Log Decompress event variables" doc:id="ac3ed882-66f5-4f51-b28e-4bf5189c9f69">
-			<ee:message>
-			</ee:message>
-			<ee:variables>
-				<ee:set-variable variableName="currentAction"><![CDATA["SGST-ORDERS-EDI-PAPI_DECOMPRESS_INPROGRESS"]]></ee:set-variable>
-				<ee:set-variable variableName="flowStatus"><![CDATA["Decompress inprogress, started to process file"]]></ee:set-variable>
-			</ee:variables>
-		</ee:transform>
-		<flow-ref doc:name="Log - Decompress status" doc:id="8d93569c-9a57-40d8-abde-293d8a8ba005" name="sgst-orders-edi-papi-logger" />
 		<compression:decompress doc:name="Decompress" doc:id="7795e48b-e543-40c9-8e31-303f5cb6c972" outputMimeType='text/csv; streaming=true; header=false; separator="\\n"; escape="\\"'>
 			<non-repeatable-stream />
 			<compression:decompressor >
 				<compression:zip-decompressor />
 			</compression:decompressor>
 		</compression:decompress>
+		<json-logger:logger doc:name="Logger" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="BEFORE_REQUEST" message='#["Decompression of file is Successful for correlation Id " ++ vars.TransactionID]'>
+			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+}]]]></json-logger:content>
+		</json-logger:logger>
 	</sub-flow>
 	<sub-flow name="sgst-object-store-update-impl-flow" doc:id="436ce630-a49f-47cd-91ef-4e831e069efd" >
 		<ee:transform doc:name="Prepare Request" doc:id="79fadcc8-0e97-4a8d-89a3-aad625437147" >
@@ -41,26 +39,9 @@ payload joinBy "\n"]]></ee:set-payload>
 import * from dw::core::Strings
 output application/java
 ---
-leftPad(vars.counter,5,0) ++ "_" ++ vars.TransactionId]]></ee:set-variable>
+leftPad(vars.counter,5,0) ++ "_" ++ vars.TransactionID]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
 					<os:store doc:name="Store" doc:id="f32d840d-ef06-4308-9d9a-be50509732e1" key="#[vars.objectStoreKey]" objectStore="Object_store"/>
-	</sub-flow>
-	<sub-flow name="sgst-orders-edi-papi-sending-email-notification-sub-flow" doc:id="38c4d0a0-64cd-41e4-96ff-02e3674a47f4" >
-		<ee:transform doc:name="Transform Message" doc:id="cc7cd0e9-0cb3-4a3d-92fb-0e47dd956054" >
-			<ee:message >
-				<ee:set-payload resource="dwl/AlertMessage.dwl" />
-			</ee:message>
-		</ee:transform>
-		<anypoint-mq:publish doc:id="f46bfc75-485b-41a1-b8de-e0f0adb7aacf" config-ref="Anypoint_MQ_Config" destination="${amq.notification.email.publish.path}" doc:name="Publish Error Message to Queue" />
-	</sub-flow>
-	<sub-flow name="sgst-orders-edi-papi-logger" doc:id="00187961-d0fd-456f-a9f8-e6064b4fa075" >
-		<ee:transform doc:name="Frame Event Audit message" doc:id="55b53123-6bf0-4e15-9ff6-ecbdb416923e" >
-			<ee:message />
-			<ee:variables >
-				<ee:set-variable resource="dwl/AuditMessage.dwl" variableName="logCurrentMessage" />
-			</ee:variables>
-		</ee:transform>
-		<logger level="INFO" doc:name="Log - Event" doc:id="0b4cf221-7e6a-4864-ba5a-3e580fb1ade7" message="#[vars.logCurrentMessage]" />
 	</sub-flow>
 </mule>
