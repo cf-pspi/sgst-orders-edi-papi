@@ -1,14 +1,14 @@
 #%RAML 1.0 Library
 usage: Library of Traits
 uses:
-  dataTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/datatypes-library/1.0.6/datatypes-library.raml
+  dataTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/datatypes-library/1.0.10/datatypes-library.raml
   
 traits:
   hasClientIdEnforcement:
-    queryParameters:
-      client_id:
+    headers:
+      X-Client-ID:
         type: string
-      client_secret:
+      X-Client-Secret:
         type: string
   hasAcceptEncoding:
     headers:
@@ -64,7 +64,7 @@ traits:
     responses:
       200:
         body:
-          application/csv:
+          application/zip:
             type: file
           application/json:
             type: dataTypesLib.SuccessResponse

@@ -1,6 +1,6 @@
 # HTTP config 
 http:
-  port: "8082"
+  port: "8081"
   host: "localhost"
   path: "/api/v1/*"
   ReadTimeout: "30000"

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	<parent>
+		<groupId>69195e0c-f771-4438-a4b2-58237c4947b6</groupId>
+		<artifactId>piscap-parent-pom-1</artifactId>
+		<version>1.0.0</version>
+	</parent>
 	<groupId>com.mycompany</groupId>
 	<artifactId>sgst-orders-edi-papi</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
@@ -60,7 +64,7 @@
 		</plugins>
 	</build>
 
-	<dependencies>
+	<!--  <dependencies>
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-http-connector</artifactId>
@@ -168,6 +172,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</pluginRepository>
-	</pluginRepositories>
+	</pluginRepositories> -->
 
 </project>
