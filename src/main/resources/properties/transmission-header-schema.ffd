@@ -1,0 +1,15 @@
+form: FIXEDWIDTH
+name: Request Header Record
+values:
+- {name : 'SystemField', Position : 1, type: String, length: 24}
+- {name : 'ApplicationIdCode', Position : 25, type: String, length: 2}
+- {name : 'DataTypeCode', Position : 27, type: String, length: 12}
+- {name : 'SystemField2', Position : 39, type: String, length: 4}
+- {name : 'TestType', Position : 43, type: String, length: 2}
+- {name : 'ReceiverCode', Position : 45, type: String,length: 16}
+- {name : 'SenderCode', Position : 61, type: String, length: 16}
+- {name : 'SystemField3', Position : 77, type: String, length: 21}
+- {name : 'ContinuationType', Position : 98, type: String, length: 1}
+- {name : 'TotalMessageSplits', Position : 99, type: String, length: 3}
+- {name : 'MessageSequence', Position : 102, type: String, length: 2}
+- {name : 'SystemField4', Position : 104, type: String, length: 53}

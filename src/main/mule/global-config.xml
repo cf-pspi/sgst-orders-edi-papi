@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
-	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
-	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
-	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq"
+	xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd 
 http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
@@ -15,7 +15,9 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
-http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ibm-mq http://www.mulesoft.org/schema/mule/ibm-mq/current/mule-ibm-mq.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 	<!-- <configuration-properties doc:name="Configuration properties" doc:id="25c05da0-330c-4801-8837-37d6c66ead2d" file="properties\local.yaml" /> -->
 	 <apikit:config name="sgst-orders-edi-papi-config" api="sgst-orders-edi-papi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
 	 <json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="29f28a87-c074-400b-99ad-7d1396c443c8" environment="${mule.env}" />
@@ -32,6 +34,9 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 	<configuration doc:name="Configuration" doc:id="de615457-ca54-4818-8f6e-2e1c8463ad76" defaultErrorHandler-ref="common-exception-handler" />
 	<configuration-properties doc:name="Configuration properties" doc:id="4118f3bf-9aba-42c8-8468-fc9f23e459ff" file="properties\common.yaml" />
 	<os:object-store name="Object_store" doc:name="Object store" doc:id="f3447a8a-42bf-409c-8b05-9cf22cb91903" />
+	<os:object-store name="Object_Store_PAPVNTL1" doc:name="Object store" doc:id="84c499d0-aa83-4b6a-a8bd-bba93f9d0dc3" config-ref="ObjectStore_Config"/>
+	<os:object-store name="Object_Store_PAPVNTL2" doc:name="Object store" doc:id="6c5ad9ae-4b15-42f1-b9cf-43e768aeae46" config-ref="ObjectStore_Config"/>
+	<os:object-store name="Object_Store_PMPC" doc:name="Object store" doc:id="38c9e77c-c3f3-481a-add9-60256553c43a" config-ref="ObjectStore_Config"/>
 	<http:request-config name="HTTP_Request_For_BackUPFile" doc:name="HTTP Request configuration" doc:id="f711df78-437d-4248-aaf9-0e42599fc9f9" basePath="${http.utilities.papi.basepath}">
 		<http:request-connection host="${http.utilities.papi.host}" maxConnections="${http.pcs.max.connections}" connectionIdleTimeout="${http.pcs.connections.idle.timeout}" responseBufferSize="${http.pcs.response.buffer.size}" protocol="HTTPS">
 			<reconnection >
@@ -75,8 +80,29 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 			</tls:context>
 		</http:request-connection>
 	</http:request-config>
+	<http:request-config name="HTTP_EDIFILE_SAP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="1d45d672-60b2-4ad2-a86a-f2fc93b20efb" basePath="${http.edifile.sapi.basepath}" >
+		<http:request-connection protocol="HTTPS" host="${http.edifile.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+			<reconnection >
+				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
+			</reconnection>
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<ibm-mq:config name="IBM_MQ_Config" doc:name="IBM MQ Config" doc:id="5e67567a-0f4d-477f-9d8d-c42fc7253608" >
+		<ibm-mq:connection cssId="819" specification="JMS_1_1">
+			<ibm-mq:connection-mode >
+				<ibm-mq:client host="133.184.33.2" port="1434" queueManager="GW4_JP" channel="CS352.TO.GW4_JP" />
+			</ibm-mq:connection-mode>
+		</ibm-mq:connection>
+	</ibm-mq:config>
 	<global-property doc:name="Global Property" doc:id="056c91d0-c766-4078-ad78-1c9374004e81" name="mule.env" value="sit" />
 	<global-property doc:name="Global Property" doc:id="8ad20181-b8c1-47bb-9279-3a062c204a26" name="secret.key" value="PanasonicDev2022"/>
+	<sftp:config name="SFTP_Config_Common_Storage" doc:name="SFTP Config" doc:id="cb10cd34-e469-4175-a39d-9eb3f69a45ad" >
+		<sftp:connection host="${sftp.common.host}" port="${sftp.common.port}" username="${sftp.common.username}" password="${secure::sftp.common.password}"/>
+	</sftp:config>
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="ec612321-e184-4323-ba58-d96b874697a4" />
 	<error-handler name="common-exception-handler" doc:id="620168ea-5f75-4860-b6e0-5ffeaf5d7084" >
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="254b4aa3-f7dd-49ab-8917-36be80077c18" type="COMPRESSION:COULD_NOT_DECOMPRESS, COMPRESSION:INVALID_ARCHIVE, COMPRESSION:TOO_MANY_ENTRIES" >
 			<flow-ref doc:name="global-config-propagate-error" doc:id="871c9151-febb-41d7-a0cf-81c2fc97968e" name="global-config-propagate-error"/>
