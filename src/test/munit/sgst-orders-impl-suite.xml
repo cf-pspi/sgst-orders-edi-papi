@@ -112,6 +112,12 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 					<munit:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpapvntl2/set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
 				</munit:variables>
 			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock PAPVNTL2 SAPI" doc:id="0b80ab44-476a-4888-ab80-8a6d66f3ac4f" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request PAPVNTL2" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="711ea4ef-fdd6-4465-868e-8ad236ae7bc6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
 			<flow-ref doc:name="Flow-ref to sgst-impl-sub-flow" doc:id="a5d29327-9ed5-4fff-9e25-093d8212595a" name="sgst-impl-sub-flow"/>
@@ -151,6 +157,12 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 					<munit:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpmpc/set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
 				</munit:variables>
 			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock PMPC SAPI" doc:id="40241d3d-1749-4d2a-bcf5-c2e95b5ef6d5" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request PMPC" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d25596c2-d7c5-400c-bef9-07c915d1f5e8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
 			<flow-ref doc:name="Flow-ref to sgst-impl-sub-flow" doc:id="cea50b82-a367-4a63-9121-a5f920115540" name="sgst-impl-sub-flow"/>
