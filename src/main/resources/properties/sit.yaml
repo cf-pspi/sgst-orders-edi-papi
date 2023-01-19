@@ -13,7 +13,7 @@ http:
     sapi:
       client_id: ''
       client_secret: ''
-      host: 'sgst-papvn_tl1-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      host: 'sgst-papvntl1-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'         
       basepath: '/api/v1'
       purchaseOrdersPath: '/purchase-orders'
@@ -25,7 +25,7 @@ http:
     sapi:
       client_id: ''
       client_secret: ''
-      host: 'sgst-papvn_tl2-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      host: 'sgst-papvntl2-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
       basepath: '/api/v1'
       purchaseOrdersPath: '/purchase-orders'
