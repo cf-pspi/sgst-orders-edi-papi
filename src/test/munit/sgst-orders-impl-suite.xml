@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="sgst-orders-impl-suite.xml" />
+	<munit:test name="sgst-impl-sub-flow-test" doc:id="1a0f504b-1886-4c60-9392-4d1a023061de" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock sgst-orders-papi-impl_decompress-flow" doc:id="52af373a-6c9e-4165-9578-85774cddda9d" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="28f76d39-5fc3-427f-8456-1f1c1c00c753" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="fileDetails" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="sapiHttpPath" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://sgstimplsubflowtest/mock_variable_2.dwl')]" />
+						<munit-tools:variable key="dataTypeCode" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="resourcePath" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="EDIMsgHeader" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="applicationCode" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_6.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="eventAuditMessage" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_7.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock sgst-object-store-update-impl-flow" doc:id="e6469ae4-4fe4-492e-881c-8c1d28c8fc5d" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d5aa241a-5b61-41dd-91a2-96f816aa715a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain  --- readUrl('classpath://sgstimplsubflowtest/mock_payload1.dwl')]" mediaType="text/plain " encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="fileDetails" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_9.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="sapiHttpPath" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_10.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://sgstimplsubflowtest/mock_variable_11.dwl')]" />
+						<munit-tools:variable key="rootMessage" value="#[readUrl('classpath://sgstimplsubflowtest/mock_variable_12.dwl')]" />
+						<munit-tools:variable key="objectStoreKey" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_13.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="dataTypeCode" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_14.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="resourcePath" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_15.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="EDIMsgHeader" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_16.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="applicationCode" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_17.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="counter" value="#[readUrl('classpath://sgstimplsubflowtest/mock_variable_18.dwl')]" />
+						<munit-tools:variable key="eventAuditMessage" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtest/mock_variable_19.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/mock_variable_20.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="e1ad5915-5ef2-4112-b1be-46bd0243bf97" >
+				<munit:payload value="#[output multipart/form-data --- readUrl('classpath://sgstimplsubflowtest/set-event_payload.dwl')]" encoding="UTF-8" mediaType="multipart/form-data" />
+				<munit:attributes value="#[readUrl('classpath://sgstimplsubflowtest/set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://sgstimplsubflowtest/set-event_variable_.dwl')]" />
+					<munit:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtest/set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock PAPVNTL1 SAPI" doc:id="8f44395d-c607-441e-8e90-7219bd481ce3" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request PAPVNTL1" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="c84531b4-b392-466d-a522-5eb6f195fc30" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to sgst-impl-sub-flow" doc:id="6dde8c96-608e-4029-a6c3-29badcade8cc" name="sgst-impl-sub-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="40db0470-f56d-457d-a3c9-574eb3229010" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import sgstimplsubflowtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="sgst-impl-sub-flow-test-papvntl2" doc:id="d70acb3d-e858-4d22-844b-0b988b04c8b6" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock sgst-orders-papi-impl_decompress-flow" doc:id="93dc41d3-190c-482b-aa4e-1c08c59915c0" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="28f76d39-5fc3-427f-8456-1f1c1c00c753" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="fileDetails" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="sapiHttpPath" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_2.dwl')]" />
+						<munit-tools:variable key="dataTypeCode" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="resourcePath" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="EDIMsgHeader" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="applicationCode" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_6.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="eventAuditMessage" value="#[output application/json --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_7.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpapvntl2/mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock sgst-object-store-update-impl-flow" doc:id="c910d744-d3c7-4802-99fe-724421ff0fb1" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1a3904c1-2a31-42d4-b0b8-0bd2610f169e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="363a952e-d798-4926-a59d-4ebf01b1ee71" >
+				<munit:payload value="#[output multipart/form-data --- readUrl('classpath://sgstimplsubflowtestpapvntl2/set-event_payload.dwl')]" encoding="UTF-8" mediaType="multipart/form-data" />
+				<munit:attributes value="#[readUrl('classpath://sgstimplsubflowtestpapvntl2/set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://sgstimplsubflowtestpapvntl2/set-event_variable_.dwl')]" />
+					<munit:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpapvntl2/set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to sgst-impl-sub-flow" doc:id="a5d29327-9ed5-4fff-9e25-093d8212595a" name="sgst-impl-sub-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="f06e29ee-aaa3-46b1-82ef-28affa443559" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import sgstimplsubflowtestpapvntl2::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="sgst-impl-sub-flow-test-pmpc" doc:id="2748f8c2-f213-4179-a487-e54b87b438ef" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock sgst-orders-papi-impl_decompress-flow" doc:id="63a260d7-1d74-4988-a9d1-eb826dbd7b9a" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="28f76d39-5fc3-427f-8456-1f1c1c00c753" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://sgstimplsubflowtestpmpc/mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock sgst-object-store-update-impl-flow" doc:id="b0213eef-ecb2-4453-b68c-b2c0e5b6cc41" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="14916406-4616-4bbb-8b36-1f409cc62815" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain  --- readUrl('classpath://sgstimplsubflowtestpmpc/mock_payload1.dwl')]" mediaType="text/plain " encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="ace1bef2-4e2c-4ebb-8785-0d1c8fe587cd" >
+				<munit:payload value="#[output multipart/form-data --- readUrl('classpath://sgstimplsubflowtestpmpc/set-event_payload.dwl')]" encoding="UTF-8" mediaType="multipart/form-data" />
+				<munit:attributes value="#[readUrl('classpath://sgstimplsubflowtestpmpc/set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://sgstimplsubflowtestpmpc/set-event_variable_.dwl')]" />
+					<munit:variable key="TransactionID" value="#[output application/java --- readUrl('classpath://sgstimplsubflowtestpmpc/set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to sgst-impl-sub-flow" doc:id="cea50b82-a367-4a63-9121-a5f920115540" name="sgst-impl-sub-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="70e3dd17-b4ae-491f-b231-0b886cd5b5b7" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import sgstimplsubflowtestpmpc::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+</mule>

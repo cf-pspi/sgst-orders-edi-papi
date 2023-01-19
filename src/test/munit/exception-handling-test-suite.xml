@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="exception-handling-test-suite.xml" />
+	<munit:test name="errorHandling-TestSuite-Mule-expression-Test" doc:id="befc54a0-aff6-45c1-9561-9ee5c2d2d8e6">
+		<munit:behavior>
+		<munit-tools:mock-when doc:name="APIKit Router" doc:id="c1500979-72ba-46fe-bbb4-63b8bcf36c70" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="MULE:EXPRESSION" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="e6bbc8f9-0941-4514-854e-5c31c5e4c935" >
+				<flow-ref doc:name="Flow Reference" doc:id="30570a30-7373-4d23-a594-cf74505265f1" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f129a519-d82c-40fd-b0cb-b6f1d5d282ed" type="EXPRESSION"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="856a1166-e855-485e-98c9-5700fc87da09" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+	<munit:test name="errorHandling-TestSuite-APIKIT_BADREQUEST-suiteTest" doc:id="3d164783-3a7e-4a0c-9a58-1ac430e27718">
+			
+		<munit:behavior>
+				
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="0e537104-02fb-4626-aa1b-b7eda734dfd5" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="c2ec5477-1089-4e90-a96d-b421d5b080c9" >
+				<flow-ref doc:name="Flow Reference" doc:id="9ccc6545-359b-4f18-b2af-273c55df0604" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fa2778d1-a985-40b1-bceb-21e3d770934e" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="641368fe-898a-46c4-8b24-e6a5b57d9f39" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+		</munit:test>
+
+	<munit:test name="errorHandling-TestSuite-APIKIT_NOT_FOUND-suiteTest" doc:id="42e5e550-47e0-4c19-a93e-7d4a5e415f4a">
+			
+		<munit:behavior>
+				
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="28d21ffe-99e0-4114-be60-b2e1d611fcda" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="5bb42ccd-4d86-4627-921e-0ce283a1bf83" >
+				<flow-ref doc:name="Flow Reference" doc:id="077f027f-3c91-4c15-93bd-2dcc4cb705dc" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4e9af523-4ea2-46fd-bec5-2f8eb09d4570" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="857cb973-3f3a-4eb5-bc60-906fd9da6f5b" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+		</munit:test>
+
+	<munit:test name="errorHandling-TestSuite-APIKIT_METHOD_NOT_ALLOWED-suiteTest" doc:id="fbd91823-b0a0-4002-8f5b-e5ca17f4bc74">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="a61204df-5801-4867-ae62-ac169f74deb5" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="38fca835-d899-4a20-9340-60bb567d083e" >
+				<flow-ref doc:name="Flow Reference" doc:id="c66a86f5-cbaf-492d-969a-1312296040d9" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="19a45cac-36f9-4d38-82e1-7961b3f39deb" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="09af5e12-d649-4bf3-b613-6df2a4f7eb2a" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+		</munit:test>
+
+	<munit:test name="errorHandling-TestSuite-APIKIT-NOT_ACCEPTABLE-suiteTest" doc:id="59f6f587-1c11-4f93-abe5-f1cd779687f2">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="b2382422-8bb0-4646-a81c-cb26ab873862" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="6a507d9f-dfff-4fb6-b93f-b58752fa0d47" >
+				<flow-ref doc:name="Flow Reference" doc:id="115ead62-b9d5-4e2c-9c1f-4f0f908576d6" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c9c40155-c228-48e0-a3ad-b9003435e48f" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="d9bd6d9e-012f-4c4c-a347-f6bc1c8efac6" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+		</munit:test>
+
+	<munit:test name="errorHandling-TestSuite-APIKIT-UNSUPPORTED_MEDIA_TYPE-suiteTest" doc:id="e9d7897e-fff7-48b1-a0a7-50489ec594fd">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="525c0273-9375-4853-867e-d7bcb1977b7e" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="e8afb5c2-8c83-46d1-bc06-33f87eeb93fe" >
+				<flow-ref doc:name="Flow Reference" doc:id="7a355b67-5f1b-411b-a666-66f55829d697" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0f0620e1-beba-440a-b21e-724ebc1d192e" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="3863b581-5c76-4190-a2b4-3f5864e410f4" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="errorHandling-TestSuite-APIKIT-NOT_IMPLEMENTED-suiteTest" doc:id="361434a9-3685-4018-8268-5f84924d8466">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="427e88e0-41ec-4b44-a375-294e21559f67" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="4155430a-5673-4585-9175-dc94d6005d80" >
+				<flow-ref doc:name="Flow Reference" doc:id="84030737-054f-490c-9e23-ee135a1d4be2" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="6f2b313a-1277-4779-a5b6-88cca3f89b1f" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="b185fb1b-611a-47f0-974a-237a4b6c39c5" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="errorHandling-TestSuite-HTTP-UNAUTHORIZED-suiteTest" doc:id="ee5b8d57-3df2-418c-b248-0195900939c7">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="bc2fe8b3-8dd0-4815-9d67-cb2525cbc352" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:UNAUTHORIZED" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="217869b5-54a6-4f0b-9944-0153695e75db" >
+				<flow-ref doc:name="Flow Reference" doc:id="eb3e7a70-fd41-4bbb-b68a-36037875071b" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2d262855-48fd-4792-90d6-a46315e42467" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="ab0b2c53-52ab-4188-a756-6fe8ef197e82" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="errorHandling-TestSuite-HTTP-FORBIDDEN-suiteTest" doc:id="98d8e0f9-53ad-454e-80e1-df60df59c168">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="81753f43-9764-46fd-8120-5fa3c92cd36b" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="7ec53b46-ae9d-4ef6-8c9d-03bcedf7cc01" >
+				<flow-ref doc:name="Flow Reference" doc:id="c58e5de0-feab-4046-8373-d24d882b1712" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2deb0696-c679-475b-91b3-8d315c68a291" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="84a55e87-0ab3-4ac7-aefb-2af0c3079e35" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+	<munit:test name="errorHandling-TestSuite-HTTP-CONNECTIVITY-suiteTest" doc:id="012b8e5f-4111-4a14-a1b5-50099295474b">
+			
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="ea2291a4-0726-4b5d-8053-d487eafb0ba4" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:CONNECTIVITY" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="74ee66ff-7fbf-40f2-a018-5bdec472c417" >
+				<flow-ref doc:name="Flow Reference" doc:id="91ab06e2-7e06-43ca-999d-de875554b595" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4d876849-17b4-4068-8233-4e7484c39802" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="68f6c3eb-f8d0-4cbf-b7c2-0f081e34f639" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="errorHandling-TestSuite-HTTP-SERVICE_UNAVAILABLE-suiteTest" doc:id="9db472e8-f56c-4172-aee2-93645fc279d5">
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="c7d95d12-2490-47a4-9d31-a3830a1d9370" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:SERVICE_UNAVAILABLE" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="8fa042f5-1f16-48c4-9115-d4e87ed81e53" >
+				<flow-ref doc:name="Flow Reference" doc:id="6e63e12d-ae49-4b3b-bcae-f00fdfbfa647" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="952807e5-a4b0-4da5-aed6-2c63bfdc2fd0" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="9383b475-a57a-4abf-82a4-20e37970c3f0" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="errorHandling-TestSuite-HTTP-TIMEOUT-suiteTest" doc:id="b4e88dc7-b003-4c6e-b0ff-54d23b8e98ad">
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="d57ba69e-5889-4d50-a30c-ad8be54ea1d5" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:TIMEOUT" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="3efb1ef1-bf8f-4266-9eeb-e4228386aaef" >
+				<flow-ref doc:name="Flow Reference" doc:id="b2756325-48fe-45cc-b23c-ef83d0c4bdb0" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="79d3c0fc-aa29-4438-a209-dc16a0b44e71" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="d36b40d8-5016-4637-8920-c0018bc75b21" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="471f47eb-3533-40ba-90ce-968b01af97cb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+		
+	<munit:test name="errorHandling-TestSuite-HTTP-BAD_GATEWAY-suiteTest" doc:id="b727ffe9-012e-46aa-b43d-c15259338334">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="sgst-orders-edi-papi-main" />
+		</munit:enable-flow-sources>
+		<munit:behavior>	
+			<munit-tools:mock-when doc:name="APIKit Router" doc:id="2a7036da-cf82-4477-92bb-64ef4e8a8a21" processor="apikit:router">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="sgst-orders-edi-papi-config" attributeName="config-ref" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:BAD_GATEWAY" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="916089a1-ab62-4fde-b742-69805538b850" >
+				<flow-ref doc:name="Flow Reference" doc:id="78258437-7ad3-4f83-a175-732cb62fb23c" name="sgst-orders-edi-papi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d0907826-4517-459a-86ff-6369a34d7b36" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="608f732b-9621-4d1e-b2c9-63ae53775937" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Frame Error Message" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+</mule>

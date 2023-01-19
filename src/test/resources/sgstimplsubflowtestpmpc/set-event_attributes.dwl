@@ -1,0 +1,30 @@
+{
+  "headers": {
+    "x-client-id": "dfdsfds",
+    "x-client-secret": "sfdsfds",
+    "accept-encoding": "zip",
+    "user-agent": "PostmanRuntime/7.30.0",
+    "accept": "*/*",
+    "postman-token": "238f7412-ece1-4cf4-a269-91235c6a94c5",
+    "host": "localhost:8081",
+    "connection": "keep-alive",
+    "content-type": "multipart/form-data; boundary=--------------------------578093108719295155743657",
+    "content-length": "689"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "https",
+  "queryParams": {},
+  "requestUri": "/api/v1/purchase-orders",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": "/purchase-orders",
+  "listenerPath": "/api/v1/*",
+  "relativePath": "/api/v1/purchase-orders",
+  "localAddress": "/127.0.0.1:8081",
+  "uriParams": {},
+  "rawRequestUri": "/api/v1/purchase-orders",
+  "rawRequestPath": "/api/v1/purchase-orders",
+  "remoteAddress": "/127.0.0.1:57757",
+  "requestPath": "/api/v1/purchase-orders"
+}
