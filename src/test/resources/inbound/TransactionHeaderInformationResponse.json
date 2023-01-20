@@ -1,0 +1,15 @@
+[
+  {
+    "SenderCode": "00020000",
+    "TotalMessageSplits": "001",
+    "DataTypeCode": "314",
+    "SystemField": "78876278800000000000",
+    "ReceiverCode": "00027011",
+    "SystemField3": "20230110788762788",
+    "MessageSequence": "01",
+    "TestType": "T",
+    "ApplicationIdCode": "03",
+    "ContinuationType": "0",
+    "SystemField4": "                         092255"
+  }
+]

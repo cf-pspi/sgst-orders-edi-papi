@@ -15,11 +15,13 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 		<json-logger:logger doc:name="Entry Logger" doc:id="b1684b6f-887e-4c9f-911e-9a47e6155b48" config-ref="JSON_Logger_Config" message="File Consumer Started"/>
 		<ee:transform doc:name="Set Header Information" doc:id="32de237e-722f-46bc-95b6-523f9f2b95ee" >
 			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="vTransHeaderInfo" ><![CDATA[%dw 2.0
 output application/json
 ---
-payload[0]]]></ee:set-payload>
-			</ee:message>
+payload[0]]]></ee:set-variable>
+			</ee:variables>
 		</ee:transform>
 		<ee:transform doc:name="Identify Type" doc:id="24aca602-02a0-413f-a1ff-685bc7de23db" >
 			<ee:message >
@@ -28,7 +30,7 @@ payload[0]]]></ee:set-payload>
 				<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
 output application/java
 ---
-if(payload.ApplicationIdCode == "03" and payload.DataTypeCode == "314") "SalesEDI" else if (payload.ApplicationIdCode == "03" and (payload.DataTypeCode contains "AR")) "EPRO" else if(payload.ApplicationIdCode == "05" and payload.DataTypeCode == "GALAXY") "ARStatements" else "invalidType"]]></ee:set-variable>
+if(vars.vTransHeaderInfo.ApplicationIdCode == "03" and vars.vTransHeaderInfo.DataTypeCode == "314") "SalesEDI" else if (vars.vTransHeaderInfo.ApplicationIdCode == "03" and (vars.vTransHeaderInfo.DataTypeCode contains "AR")) "EPRO" else if(vars.vTransHeaderInfo.ApplicationIdCode == "05" and vars.vTransHeaderInfo.DataTypeCode == "GALAXY") "ARStatements" else "invalidType"]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<ee:transform doc:name="Prepare FileName" doc:id="08848ad4-b99c-45ee-a068-14d530d7396a" >
@@ -38,14 +40,14 @@ if(payload.ApplicationIdCode == "03" and payload.DataTypeCode == "314") "SalesED
 				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
 output application/java
 ---
-"Z11_" ++ vars.vDataInterface ++"_"++ payload.MessageSequence ++"_"++ payload.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyHHmm"}]]></ee:set-variable>
+"Z11_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyHHmm"}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<os:store doc:name="Store Split File" doc:id="ea46dc9f-eacf-4ea0-bcae-a9be4d171b28" key="#[vars.vFileName]" objectStore="Object_Store_PAPVNTL1"/>
 		<json-logger:logger doc:name="Exit Logger" doc:id="14bad7a4-649b-4c3d-9bbb-9faa5de852b8" config-ref="JSON_Logger_Config" message="File Consume Process Ended"/>
 	</flow>
 	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flow" doc:id="625f8234-f9a5-457d-b201-6e003bb7a040" >
-		<scheduler doc:name="Scheduler" doc:id="0dccc1d2-6fa6-413e-85fa-0043ddd3ebb6" >
+		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-papvntl1-scheduler" doc:id="0dccc1d2-6fa6-413e-85fa-0043ddd3ebb6" >
 			<scheduling-strategy >
 				<cron expression="0 0 0/1 ? * * *" />
 			</scheduling-strategy>
@@ -120,7 +122,17 @@ output application/json
 			</ee:transform>
 			<sftp:write doc:name="Write Output File" doc:id="6bf197c0-c211-40cf-9079-d12bf8f45516" config-ref="SFTP_Config_Common_Storage" path="/inbound/papvn-tl2/output/" />
 		</foreach>
-		<logger level="INFO" doc:name="Send file to SAP API" doc:id="8b0b7144-8332-4f2c-bc13-27fc4f0cbdef" message="Send file to SAP API"/>
+		<ee:transform doc:name="Prepare Request" doc:id="f23f28ac-d2a9-46ef-ae9a-3a34289d1296">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="e999cb49-f1a6-4568-a1ac-e8114c201274" >
+			<http:request method="POST" doc:name="SAP POST Request" doc:id="cb0f4b30-bf0a-49be-bf2d-024b379a584c" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]" />
+		</until-successful>
 	</flow>
 	
 	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flow" doc:id="387de2ab-db56-438e-a949-2a4297691290" >
@@ -157,12 +169,12 @@ output application/java
 		<json-logger:logger doc:name="Exit Logger" doc:id="9893a5da-fd02-4794-8926-71af27001be1" config-ref="JSON_Logger_Config" message="File Consume Process End"/>
 	</flow>
 	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow" doc:id="4ccab4c3-ca69-42e9-b6d9-ad0706ebe705" >
-		<scheduler doc:name="Scheduler" doc:id="53cf334e-aa33-4977-9d19-79929b017bd7" >
+		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-papvntl2-scheduler" doc:id="53cf334e-aa33-4977-9d19-79929b017bd7" >
 			<scheduling-strategy >
 				<cron expression="0 0 0/1 ? * * *" />
 			</scheduling-strategy>
 		</scheduler>
-		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="5b824937-9c77-4bc5-9f86-1264b11f815d" objectStore="Object_Store_PAPVNTL1"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="5b824937-9c77-4bc5-9f86-1264b11f815d" objectStore="Object_Store_PAPVNTL2"/>
 		<ee:transform doc:name="Save Files" doc:id="3d05927a-1fef-4647-a27a-11aca34b9b2d" >
 			<ee:message >
 			</ee:message>
@@ -213,7 +225,7 @@ output application/java
 			</ee:transform>
 			<choice doc:name="Choice" doc:id="e9a9f231-0658-4156-987e-e6d01ed54bf3" >
 				<when expression="#[vars.vProcessingFlag]">
-					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="bd8254af-8992-46c1-ab57-10535e4ad996" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-send-file-flow" />
+					<flow-ref doc:name="Send File Flow" doc:id="bd8254af-8992-46c1-ab57-10535e4ad996" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-send-file-flow" />
 				</when>
 			</choice>
 		</foreach>
@@ -232,8 +244,17 @@ output application/json
 			</ee:transform>
 			<sftp:write doc:name="Write Output File" doc:id="2e066869-d104-4f29-afb5-a6d5dcf54e19" config-ref="SFTP_Config_Common_Storage" path="/inbound/papvn-tl2/output/" />
 		</foreach>
-		<logger level="INFO" doc:name="Send file to SAP API" doc:id="158250da-b86d-4a7c-b7ca-6662bdb1dd99" message="Send file to SAP API"/>
-	</flow>
+		<ee:transform doc:name="Prepare Request" doc:id="fbe8dee3-0657-44e5-b63b-a84872d1b954" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="SAP POST Request" doc:id="d98d2ff5-85b1-44e1-9007-a305104039de" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]"/>
+	
+</flow>
 	
 	<flow name="sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flow" doc:id="332633dc-c67c-431c-b301-8b0b29429ea8" >
 		<json-logger:logger doc:name="Entry Logger" doc:id="a2d28cbe-5a81-42e9-924a-8b3446671de5" config-ref="JSON_Logger_Config" message="File Consumer Started"/>
@@ -270,7 +291,7 @@ output application/java
 	
 </flow>
 	<flow name="sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow" doc:id="f540deeb-d36c-46b9-bb72-00b9116f3047" >
-		<scheduler doc:name="Scheduler" doc:id="6facb5dd-59a9-43b3-91b0-0a2174eb221a" >
+		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-pmpc-scheduler" doc:id="6facb5dd-59a9-43b3-91b0-0a2174eb221a" >
 			<scheduling-strategy >
 				<cron expression="0 0 0/1 ? * * *" />
 			</scheduling-strategy>
@@ -326,7 +347,7 @@ output application/java
 			</ee:transform>
 			<choice doc:name="Choice" doc:id="bd27e1ea-b0ec-4364-9622-7b5b82a3b0bd" >
 				<when expression="#[vars.vProcessingFlag]">
-					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="45ef32c5-5984-4a38-959f-787c76bc2805" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-send-file-flow" />
+					<flow-ref doc:name="Send File Flow" doc:id="45ef32c5-5984-4a38-959f-787c76bc2805" name="sgst-orders-edi-papi-inbound-PMPC-send-file-flow" />
 				</when>
 			</choice>
 		</foreach>
@@ -345,6 +366,14 @@ output application/json
 			</ee:transform>
 			<sftp:write doc:name="Write Output File" doc:id="863d5b55-0c2e-4209-a770-3c82d7b5fcc3" config-ref="SFTP_Config_Common_Storage" path='/inbound/pmpc/output/' />
 		</foreach>
-		<logger level="INFO" doc:name="Send file to SAP API" doc:id="bb86fa95-ae4b-4ab6-b483-fac0e539a1c5" message="Send file to SAP API"/>
+		<ee:transform doc:name="Prepare Request" doc:id="117d0d55-fd95-4ece-97de-76869a208ce0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="SAP POST Call" doc:id="6122bb97-834a-47c0-87c2-07c20ce551c0" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]"/>
 	</flow>
 </mule>
