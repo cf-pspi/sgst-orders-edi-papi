@@ -1,36 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ibm-mq http://www.mulesoft.org/schema/mule/ibm-mq/current/mule-ibm-mq.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
-http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
-	
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="b56dcfeb-c773-4cc2-8cd4-dbabb643387b" />
 	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flow" doc:id="a0f71ccd-0501-4f51-975c-0984ec7efc50" >
-		<json-logger:logger doc:name="Entry Logger" doc:id="b1684b6f-887e-4c9f-911e-9a47e6155b48" config-ref="JSON_Logger_Config" message="File Consumer Started"/>
-		<ee:transform doc:name="Set Header Information" doc:id="32de237e-722f-46bc-95b6-523f9f2b95ee" >
+<!-- [STUDIO:"Scheduler"]		<scheduler doc:name="Scheduler" doc:id="618d3997-9035-42ec-9e85-fca90cd8cc39" >
+			<scheduling-strategy >
+				<fixed-frequency startDelay="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler> [STUDIO] -->
+		<ee:transform doc:name="Set TransactionId" doc:id="cd9dcbc5-81ed-4844-b7c3-29dc250a4ee8">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID"><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="b1684b6f-887e-4c9f-911e-9a47e6155b48" config-ref="JSON_Logger_Config" message="API START: INIT - Received Message.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CONSUMER START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<ee:transform doc:name="Temp Remove" doc:id="d0eaae7e-9797-4e28-a494-874ec1f309c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+readUrl("classpath://VN12_SAP_GITP R2_20230112191935","application/csv",{header:false,separator:"\n"})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Get TransHeader" doc:id="113ef0f6-74ee-4665-aa32-a14cc8d07c90">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vTransHeader"><![CDATA[%dw 2.0
+output application/json
+---
+payload[0].column_0]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Content" doc:id="32de237e-722f-46bc-95b6-523f9f2b95ee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+write((payload[1 to -1].column_0) joinBy  "\n", "application/java")]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Transaction Header" doc:id="c56ebb44-cdc9-44cb-8c17-6812763f7999" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
 				<ee:set-variable variableName="vTransHeaderInfo" ><![CDATA[%dw 2.0
 output application/json
 ---
-payload[0]]]></ee:set-variable>
+{
+    ApplicationIdCode: vars.vTransHeader[24 to 25],
+    DataTypeCode: trim(vars.vTransHeader[26 to 37]),
+    MessageSequence: vars.vTransHeader[101 to 102],
+    TotalMessageSplits: vars.vTransHeader[98 to 100]
+}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<ee:transform doc:name="Identify Type" doc:id="24aca602-02a0-413f-a1ff-685bc7de23db" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
-				<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
-output application/java
----
-if(vars.vTransHeaderInfo.ApplicationIdCode == "03" and vars.vTransHeaderInfo.DataTypeCode == "314") "SalesEDI" else if (vars.vTransHeaderInfo.ApplicationIdCode == "03" and (vars.vTransHeaderInfo.DataTypeCode contains "AR")) "EPRO" else if(vars.vTransHeaderInfo.ApplicationIdCode == "05" and vars.vTransHeaderInfo.DataTypeCode == "GALAXY") "ARStatements" else "invalidType"]]></ee:set-variable>
+				<ee:set-variable resource="dwl/setInboundDataInterface.dwl" variableName="vDataInterface" />
 			</ee:variables>
 		</ee:transform>
 		<ee:transform doc:name="Prepare FileName" doc:id="08848ad4-b99c-45ee-a068-14d530d7396a" >
@@ -40,11 +103,44 @@ if(vars.vTransHeaderInfo.ApplicationIdCode == "03" and vars.vTransHeaderInfo.Dat
 				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
 output application/java
 ---
-"Z11_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyHHmm"}]]></ee:set-variable>
+"Z11_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
+		<json-logger:logger doc:name="Log - Initiate OS" doc:id="b78bae37-24ce-45f7-9bac-d310bad57440" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
 		<os:store doc:name="Store Split File" doc:id="ea46dc9f-eacf-4ea0-bcae-a9be4d171b28" key="#[vars.vFileName]" objectStore="Object_Store_PAPVNTL1"/>
-		<json-logger:logger doc:name="Exit Logger" doc:id="14bad7a4-649b-4c3d-9bbb-9faa5de852b8" config-ref="JSON_Logger_Config" message="File Consume Process Ended"/>
+		<json-logger:logger doc:name="Log - OS Status" doc:id="14bad7a4-649b-4c3d-9bbb-9faa5de852b8" config-ref="JSON_Logger_Config" message="File Processed to Objectstore successfully" tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
 	</flow>
 	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flow" doc:id="625f8234-f9a5-457d-b201-6e003bb7a040" >
 		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-papvntl1-scheduler" doc:id="0dccc1d2-6fa6-413e-85fa-0043ddd3ebb6" >
@@ -52,6 +148,33 @@ output application/java
 				<cron expression="0 0 0/1 ? * * *" />
 			</scheduling-strategy>
 		</scheduler>
+		<ee:transform doc:name="Set TransactionId" doc:id="753ac0df-e8f5-4383-ae55-589ef58e3a2e" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="TransactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="4cde1b09-491d-4cbc-8e88-be75ab997456" config-ref="JSON_Logger_Config" message="API:INIT Scheduler Started for PAPVN-TL1">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
 		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="3a378476-02a2-488d-8e1c-d370977e80dc" objectStore="Object_Store_PAPVNTL1"/>
 		<ee:transform doc:name="Save Files" doc:id="fa2f1824-4731-4268-b0fc-3b0684ff21a3" >
 			<ee:message >
@@ -75,6 +198,17 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<foreach doc:name="For Each" doc:id="3cdac4df-af8b-4225-97ea-b732918480d7" collection="#[vars.vFileTypes]">
+			<ee:transform doc:name="Set External System" doc:id="8075777b-eacb-4e05-98bf-8e04fe294ee9" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vExternalSystem" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+				
+</ee:variables>
+			</ee:transform>
 			<ee:transform doc:name="Filter Files" doc:id="9b94988b-4f0e-4262-aedd-d6d35b64a4c9">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
@@ -83,7 +217,18 @@ output application/json
 (vars.vAllFiles filter ($ contains payload))]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-<ee:transform doc:name="Set Files In Sequence" doc:id="e370267d-4271-4f3d-8c9f-397bf44b2093" >
+<ee:transform doc:name="Set Data Interface" doc:id="fbddaeff-5332-48c3-b776-3f3cd0c43a72" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
+output application/java
+---
+(payload[0] splitBy "_")[2]]]></ee:set-variable>
+				</ee:variables>
+			
+</ee:transform>
+			<ee:transform doc:name="Set Files In Sequence" doc:id="e370267d-4271-4f3d-8c9f-397bf44b2093" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -105,77 +250,429 @@ output application/java
 				<when expression="#[vars.vProcessingFlag]">
 					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="452137cf-1349-4ea1-aba7-46ea1460fa6d" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-send-file-flow" />
 				</when>
-			</choice>
-		</foreach>
-		<logger level="INFO" doc:name="Send file to SAP API" doc:id="8f98d5d7-6f33-4f56-a3e9-4c88f9830ed8" />
-	</flow>
-	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-send-file-flow" doc:id="450bfb66-bf99-4284-a2d1-77cc1f2c9a22" >
-		<foreach doc:name="For Each" doc:id="abacf372-9011-4698-9580-fb18e63cf87f">
-			<os:retrieve doc:name="Get File from OS" doc:id="9e3cb052-7bae-412a-91b9-0b62b9304f11" key="#[payload]" objectStore="Object_Store_PAPVNTL1"/>
-			<ee:transform doc:name="Remove Headers" doc:id="5adf9bc4-06c9-401e-82bc-1f6190d7b689">
-				<ee:message>
-					<ee:set-payload><![CDATA[%dw 2.0
+				<otherwise >
+					<json-logger:logger doc:name="Files Status" doc:id="aa5ab686-e09d-4af7-879b-376495987069" config-ref="JSON_Logger_Config" message="No Valid files to Process">
+						<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
-"test"]]></ee:set-payload>
-				</ee:message>
-			</ee:transform>
-			<sftp:write doc:name="Write Output File" doc:id="6bf197c0-c211-40cf-9079-d12bf8f45516" config-ref="SFTP_Config_Common_Storage" path="/inbound/papvn-tl2/output/" />
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler END",
+   "status": "END"
+}]]]></json-logger:content>
+					</json-logger:logger>
+				</otherwise>
+			</choice>
 		</foreach>
+		<ee:transform doc:name="Set Response" doc:id="d5cc8092-0782-47f6-b84f-31ce74b8c77d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  statusCode: 200,
+  statusMessage: "Processing of File is completed",
+  correlationID: vars.TransactionID
+}	]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - End Event" doc:id="d752bd70-c369-4385-ab15-e6ac5c644b44" config-ref="JSON_Logger_Config" message="API START: END - Completed API request." tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler END",
+   "status": "END"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</flow>
+	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-send-file-flow" doc:id="450bfb66-bf99-4284-a2d1-77cc1f2c9a22" >
+		<ee:transform doc:name="Set File Name" doc:id="cfb9ea4e-4223-417d-915f-4f5d0343be0c">
+				<ee:message>
+				</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vOutputFileName"><![CDATA[%dw 2.0
+output application/java
+---
+"Z11_" ++ vars.vExternalSystem ++"_"++ vars.vDataInterface ++ now() as String {format: "ddMMyyyyHHmm"} ++ ".txt"]]></ee:set-variable>
+			</ee:variables>
+			
+</ee:transform>
+		<foreach doc:name="For Each" doc:id="abacf372-9011-4698-9580-fb18e63cf87f">
+			<ee:transform doc:name="Calculate File Date" doc:id="9d4e583d-b135-49cc-86f3-b4954cea3fc8" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
+output application/java
+var currentDate = now() as Date {format : "dd-MM-yyyy"}
+var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
+---
+daysBetween(fileDate,currentDate)]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="3ba080c1-7638-4bda-9145-88d525a77f75" >
+				<when expression="#[vars.vCurrentFileDateDifference &lt; 1]">
+					<ee:transform doc:name="Delete Files" doc:id="47a75d6a-4d4d-41ed-9a81-5160f99e8a78">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="vDeleteSplitFiles"><![CDATA[%dw 2.0
+output application/java
+---
+vars.vDeleteSplitFiles default [] ++ [payload]]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+					<os:retrieve doc:name="Get File from OS" doc:id="9e3cb052-7bae-412a-91b9-0b62b9304f11" key="#[payload]" objectStore="Object_Store_PAPVNTL1" />
+					<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="c8273733-2fb4-440e-b32f-ca43c095d1ee" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SFTP",
+   "status": "START"
+}]]]></json-logger:content>
+					</json-logger:logger>
+					<sftp:write doc:name="Write Output File" doc:id="6bf197c0-c211-40cf-9079-d12bf8f45516" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl1/output/" ++ vars.vOutputFileName]' mode="APPEND">
+			</sftp:write>
+					<json-logger:logger doc:name="Log - File Publish Status" doc:id="1c309464-aa0d-4b78-be87-70929c8cb676" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SFTP",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+					</json-logger:logger>
+<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="d9fbe33d-027d-4223-a594-f23c53c044dc" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="Update with Email/Backup" doc:id="0d048b9a-58e9-4f63-b23c-4ea71a8ec5a4" />
+					<logger level="INFO" doc:name="Delete Old files" doc:id="b31d9e47-c996-49ac-a64b-d13bee152443" message="delete old files"/>
+				</otherwise>
+			</choice>
+		</foreach>
+		<sftp:read doc:name="Read" doc:id="1c4a56e0-8035-4d9d-951b-52eb21d98558" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl1/output/" ++ vars.vOutputFileName]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="5fe9ad8b-45b4-44dd-8b2a-57f06eb6cbfe" message="#[payload]"/>
+		<flow-ref doc:name="Call SAP Flow" doc:id="6ddaef86-44ec-42fc-9abb-10cab3e47097" name="sgst-orders-edi-papi-inbound-common-sap-impl-sub-flow"/>
+	</flow>
+	
+	<sub-flow name="sgst-orders-edi-papi-inbound-common-sap-impl-sub-flow" doc:id="5cac3e8f-1c2f-4ab5-bb6d-6e73848d03ab" >
 		<ee:transform doc:name="Prepare Request" doc:id="f23f28ac-d2a9-46ef-ae9a-3a34289d1296">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
-output application/json
+output multipart/form-data
 ---
-payload]]></ee:set-payload>
+{
+	parts: {
+		EDIMsgHeader: {
+			headers: {
+				"Content-Type": "application/json"
+			},
+			content: {
+				"subsidiary": "PAPVN-TL1",
+				"flatFileName": vars.vOutputFileName,
+				"flatFileFormat": "FIXED_WIDTH",
+				"externalSystem": vars.vExternalSystem,
+				"flatFileExtension": ".zip"
+			}
+		}
+	}
+}]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
-		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="e999cb49-f1a6-4568-a1ac-e8114c201274" >
-			<http:request method="POST" doc:name="SAP POST Request" doc:id="cb0f4b30-bf0a-49be-bf2d-024b379a584c" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]" />
+		<ee:transform doc:name="Set Resource Path" doc:id="d442d947-d6ad-440f-9694-e792b1b7dadd">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="resourcePath"><![CDATA[%dw 2.0
+output application/java
+---
+if ( vars.vExternalSystem == "EPRO" and vars.vDataInterface == "POResponse" ) "/po-response"
+else 
+	if ( vars.vExternalSystem == "EPRO" and payload.vDataInterface == "EDIResults" ) "/edi-results"
+else
+	if ( vars.vExternalSystem == "SalesEDI" ) "/sales-orders"
+else
+	if ( vars.vExternalSystem == "CMS" ) "/ar-statements"
+else
+	"InvalidExternalSystem"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log Before SAPI Request" doc:id="c730ef79-2419-4278-9b7b-e9a64c064bab" config-ref="JSON_Logger_Config" message="Initiate call to SAPI">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "START"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<choice doc:name="Choice" doc:id="68009ce2-7bcb-4ab5-b0e7-e39ba3862339" >
+			<when expression='#[vars.resourcePath != "InvalidExternalSystem"]'>
+				<try doc:name="Try" doc:id="bf0f933d-a541-47c3-991a-801be7c44221" >
+					<until-successful maxRetries="1" doc:name="Until Successful" doc:id="e999cb49-f1a6-4568-a1ac-e8114c201274">
+			<http:request method="POST" doc:name="SAP POST Request" doc:id="cb0f4b30-bf0a-49be-bf2d-024b379a584c" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]" outputMimeType="multipart/form-data">
+				<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json",
+	"X-Client-ID" : "${http.edifile.sapi.client_id}",
+	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
+}]]]></http:headers>
+			</http:request>
 		</until-successful>
-	</flow>
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f8436ea0-b0f4-4196-99bc-8ff53e52ba68" >
+							<logger level="INFO" doc:name="Send an Email with ZIP file" doc:id="c606367a-fdc4-4bfe-9f2c-e563e5ac807a" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set Error Response" doc:id="693794ba-99f6-4204-8b87-c79f0b22889d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 500,
+	errorMessage: "The provided external system: " ++ vars.vExternalSystem ++ " is invalid for " ++ vars.vDataInterface,
+	errorType: 'DATA ERROR',
+	correlationID: vars.TransactionID,
+	timestamp: now()
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<foreach doc:name="For Each" doc:id="67a53ed8-799a-46be-9c09-02751fe9432d" collection="#[vars.vDeleteSplitFiles]">
+								<os:remove doc:name="Remove Split File from ObjectStore" doc:id="dfda311e-55e0-407f-b339-1e49b07d9870" key="#[payload]" objectStore="Object_Store_PAPVNTL1" />
+							</foreach>
+		<json-logger:logger doc:name="Log After SAPI Request" doc:id="9fbd430c-579c-42e2-bcf1-0d506308cc06" config-ref="JSON_Logger_Config" message="File published successfully to SAP">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</sub-flow>
 	
-	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flow" doc:id="387de2ab-db56-438e-a949-2a4297691290" >
-		<json-logger:logger doc:name="Entry Logger" doc:id="584841aa-9eab-4e0c-9411-6e70f5426251" config-ref="JSON_Logger_Config" message="File Consumer Started"/>
-		<ee:transform doc:name="Set Header Information" doc:id="16efb2c0-e537-47b2-a7e2-b78ea115f5ba" >
+	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flow" doc:id="a3ba68ab-f26c-4230-8409-f549904cd81a" >
+		<scheduler doc:name="Scheduler" doc:id="0b4c7495-512b-4476-9dbf-79024f4a76af" >
+			<scheduling-strategy >
+				<fixed-frequency startDelay="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Set TransactionId" doc:id="ba009250-e09b-4872-8aee-63670fd3710e">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID"><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="01e25385-c883-4c80-b8a9-fce336fd694c" config-ref="JSON_Logger_Config" message="API START: INIT - Received Message.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CONSUMER START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<ee:transform doc:name="Temp Remove" doc:id="e5c95af1-61e8-4eb9-a149-98f063417836" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload[0]]]></ee:set-payload>
+readUrl("classpath://VN12_SAP_GITP R2_20230112191935","application/csv",{header:false,separator:"\n"})]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<ee:transform doc:name="Identify Type" doc:id="9369d7f9-7ed0-4704-b393-702f71a4b904" >
+		<ee:transform doc:name="Get TransHeader" doc:id="5ce7b652-021a-49b1-aa55-3efc466385b0">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vTransHeader"><![CDATA[%dw 2.0
+output application/json
+---
+payload[0].column_0]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Content" doc:id="42231805-cb6a-4ea9-bcdc-3785db148476" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+write((payload[1 to -1].column_0) joinBy  "\n", "application/java")]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Transaction Header" doc:id="41757bbf-a58a-4844-a448-d92984f86813" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
-				<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
-output application/java
+				<ee:set-variable variableName="vTransHeaderInfo" ><![CDATA[%dw 2.0
+output application/json
 ---
-if(payload.ApplicationIdCode == "03" and payload.DataTypeCode == "314") "SalesEDI" else if (payload.ApplicationIdCode == "03" and (payload.DataTypeCode contains "AR")) "EPRO" else if(payload.ApplicationIdCode == "05" and payload.DataTypeCode == "GALAXY") "ARStatements" else "invalidType"]]></ee:set-variable>
+{
+    ApplicationIdCode: vars.vTransHeader[24 to 25],
+    DataTypeCode: trim(vars.vTransHeader[26 to 37]),
+    MessageSequence: vars.vTransHeader[101 to 102],
+    TotalMessageSplits: vars.vTransHeader[98 to 100]
+}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<ee:transform doc:name="Prepare FileName" doc:id="9167da7b-50e7-4724-a721-70450d948d88" >
+		<ee:transform doc:name="Identify Type" doc:id="44b00790-9470-4e67-a84f-adfc57598fea" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable resource="dwl/setInboundDataInterface.dwl" variableName="vDataInterface" />
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Prepare FileName" doc:id="68c13778-f153-4c6a-9743-ba82c6dc36b2" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
 				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
 output application/java
 ---
-"Z12_" ++ vars.vDataInterface ++"_"++ payload.MessageSequence ++"_"++ payload.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyHHmm"}]]></ee:set-variable>
+"Z12_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<os:store doc:name="Store Split File" doc:id="5491ca4a-08be-4096-bb13-a249ecbb09f8" key="#[vars.vFileName]" objectStore="Object_Store_PAPVNTL2"/>
-		<json-logger:logger doc:name="Exit Logger" doc:id="9893a5da-fd02-4794-8926-71af27001be1" config-ref="JSON_Logger_Config" message="File Consume Process End"/>
+		<json-logger:logger doc:name="Log - Initiate OS" doc:id="5e025716-5c21-49e4-80a2-7e8b8b6d434d" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:store doc:name="Store Split File" doc:id="689e8fce-568f-4f6f-839f-259589b2386b" key="#[vars.vFileName]" objectStore="Object_Store_PAPVNTL2"/>
+		<json-logger:logger doc:name="Log - OS Status" doc:id="e01b16a1-0c2a-42d6-b10b-306378dbbad0" config-ref="JSON_Logger_Config" message="File Processed to Objectstore successfully" tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
 	</flow>
-	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow" doc:id="4ccab4c3-ca69-42e9-b6d9-ad0706ebe705" >
-		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-papvntl2-scheduler" doc:id="53cf334e-aa33-4977-9d19-79929b017bd7" >
+	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow" doc:id="5736cd81-6dde-42cf-8999-ed93e10e14bb" >
+		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-papvntl1-scheduler" doc:id="df6b7609-d341-4a8f-a162-7786e809b3d9" >
 			<scheduling-strategy >
 				<cron expression="0 0 0/1 ? * * *" />
 			</scheduling-strategy>
 		</scheduler>
-		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="5b824937-9c77-4bc5-9f86-1264b11f815d" objectStore="Object_Store_PAPVNTL2"/>
-		<ee:transform doc:name="Save Files" doc:id="3d05927a-1fef-4647-a27a-11aca34b9b2d" >
+		<ee:transform doc:name="Set TransactionId" doc:id="063573d1-b4c3-47a3-a10f-a191865a9086" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="TransactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="d698a8e4-b055-48d0-b89c-171d9bd0d1da" config-ref="JSON_Logger_Config" message="API:INIT Scheduler Started for PAPVN-TL2">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="e4701169-4525-4f18-b39c-af82691e1c01" objectStore="Object_Store_PAPVNTL2"/>
+		<ee:transform doc:name="Save Files" doc:id="7a607250-71ea-40f5-9a76-58cc7fa88731" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
@@ -186,7 +683,7 @@ output application/json
 payload]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-<ee:transform doc:name="File Types" doc:id="82af9915-1b0a-4377-813d-952d43fdb85e" >
+<ee:transform doc:name="File Types" doc:id="e7b8cdcf-29f9-48fb-87e1-665538e37670" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
@@ -196,8 +693,19 @@ output application/json
 ((payload map ($ splitBy  "_")[1]) distinctBy $) default []]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<foreach doc:name="For Each" doc:id="579bf000-f1df-412c-9b48-155a07c68ad5" collection="#[vars.vFileTypes]">
-			<ee:transform doc:name="Filter Files" doc:id="458cfcf4-95a6-4d51-954f-941b4b73056c">
+		<foreach doc:name="For Each" doc:id="52ab57ba-96c4-4e0d-aad9-44ce8434406c" collection="#[vars.vFileTypes]">
+			<ee:transform doc:name="Set External System" doc:id="4435899c-872b-443e-8f61-1b6281def8f2" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vExternalSystem" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+				
+</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Filter Files" doc:id="cfecb4f9-234c-46f4-a0ff-7cec47179988">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -205,7 +713,18 @@ output application/json
 (vars.vAllFiles filter ($ contains payload))]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-<ee:transform doc:name="Set Files In Sequence" doc:id="f8503aa2-4a1b-4d4c-af13-2697c41436fb" >
+<ee:transform doc:name="Set Data Interface" doc:id="e06cd617-6c1d-4237-8036-b8fbf45b6516" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
+output application/java
+---
+(payload[0] splitBy "_")[2]]]></ee:set-variable>
+				</ee:variables>
+			
+</ee:transform>
+			<ee:transform doc:name="Set Files In Sequence" doc:id="07e8b596-c7ec-4233-b325-4098b592f858" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -213,7 +732,7 @@ output application/json
 payload orderBy $]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
-			<ee:transform doc:name="Set Processing Flag" doc:id="6195f871-7468-4c66-af01-fde91442efca" >
+			<ee:transform doc:name="Set Processing Flag" doc:id="cf8a54bc-060b-44f4-9aed-9ae02daf5755" >
 				<ee:message >
 				</ee:message>
 				<ee:variables >
@@ -223,81 +742,427 @@ output application/java
 (sizeOf(payload) == (payload[0] splitBy "_")[3] as Number) default false]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-			<choice doc:name="Choice" doc:id="e9a9f231-0658-4156-987e-e6d01ed54bf3" >
+			<choice doc:name="Choice" doc:id="137ccdd8-76b0-4a5e-a11d-182ec626d2e0" >
 				<when expression="#[vars.vProcessingFlag]">
-					<flow-ref doc:name="Send File Flow" doc:id="bd8254af-8992-46c1-ab57-10535e4ad996" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-send-file-flow" />
+					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="e22c5b3e-a9d3-4a48-9b10-a28098052333" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-send-file-flow" />
 				</when>
+				<otherwise >
+					<json-logger:logger doc:name="Files Status" doc:id="b76d4ccc-bf5b-407b-93d6-5d14e572b359" config-ref="JSON_Logger_Config" message="No Valid files to Process">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler END",
+   "status": "END"
+}]]]></json-logger:content>
+					</json-logger:logger>
+				</otherwise>
 			</choice>
 		</foreach>
-		<logger level="INFO" doc:name="Send file to SAP API" doc:id="ee2f2719-f51e-4a61-831d-409620f78195" />
+		<ee:transform doc:name="Set Response" doc:id="6c205f4f-8482-4c0b-b587-25f955ab6ea0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  statusCode: 200,
+  statusMessage: "Processing of File is completed",
+  correlationID: vars.TransactionID
+}	]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - End Event" doc:id="34ff0787-964b-4657-aa67-37434be7de63" config-ref="JSON_Logger_Config" message="API START: END - Completed API request." tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler END",
+   "status": "END"
+}]]]></json-logger:content>
+		</json-logger:logger>
 	</flow>
-	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-send-file-flow" doc:id="921ba638-5851-47f0-86af-bb39d9908cbf" >
-		<foreach doc:name="For Each" doc:id="e754b09c-639b-49f4-93d6-f91e16de125a">
-			<os:retrieve doc:name="Get File from OS" doc:id="dbd25505-259d-40d0-946b-f39577b1c875" key="#[payload]" objectStore="Object_Store_PAPVNTL2"/>
-			<ee:transform doc:name="Remove Headers" doc:id="a78c08e6-01b4-48f5-912d-de6cd3ededb6">
+	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-send-file-flow" doc:id="2d292463-dfb9-49f1-9760-5fc01bbccc45" >
+		<ee:transform doc:name="Set File Name" doc:id="a2806bed-da7f-4683-8a0d-28beef19c023">
+				<ee:message>
+				</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vOutputFileName"><![CDATA[%dw 2.0
+output application/java
+---
+"Z12_" ++ vars.vExternalSystem ++"_"++ vars.vDataInterface ++ now() as String {format: "ddMMyyyyHHmm"} ++ ".txt"]]></ee:set-variable>
+			</ee:variables>
+			
+</ee:transform>
+		<foreach doc:name="For Each" doc:id="b40fb742-3e67-4ca2-91e4-1b0c6093e89c">
+			<ee:transform doc:name="Calculate File Date" doc:id="5128778d-78f7-476d-b396-a46c3afed4ac" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
+output application/java
+var currentDate = now() as Date {format : "dd-MM-yyyy"}
+var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
+---
+daysBetween(fileDate,currentDate)]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="11593242-e80c-4228-a261-ce75b9511e9a" >
+				<when expression="#[vars.vCurrentFileDateDifference &lt; 1]">
+					<ee:transform doc:name="Delete Files" doc:id="25ed645b-47cc-41e4-9d79-a42108a36e0d">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="vDeleteSplitFiles"><![CDATA[%dw 2.0
+output application/java
+---
+vars.vDeleteSplitFiles default [] ++ [payload]]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+					<os:retrieve doc:name="Get File from OS" doc:id="38f7afd5-e71b-4a91-87ec-08418a6a1274" key="#[payload]" objectStore="Object_Store_PAPVNTL2" />
+					<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="e523cdad-688b-4544-80d5-1bc996f8a26a" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SFTP",
+   "status": "START"
+}]]]></json-logger:content>
+					</json-logger:logger>
+					<sftp:write doc:name="Write Output File" doc:id="39774b22-7a1c-46c6-b951-279ec4da6c1d" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl2/output/" ++ vars.vOutputFileName]' mode="APPEND">
+			</sftp:write>
+					<json-logger:logger doc:name="Log - File Publish Status" doc:id="1412f96b-da3e-4749-ad18-ddde16345b40" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SFTP",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+					</json-logger:logger>
+<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="efdeed03-633f-4cff-a930-d3bf5aa4088b" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="Update with Email/Backup" doc:id="82af13ef-98d3-4e8e-81e9-d92d26b72b64" />
+					<logger level="INFO" doc:name="Delete Old files" doc:id="fca9da08-9540-4c2f-903e-5e69226bd15a" message="delete old files"/>
+				</otherwise>
+			</choice>
+		</foreach>
+		<flow-ref doc:name="Call SAP Flow" doc:id="ebeb98fd-1fa8-456f-aadd-851568500334" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-sap-impl-sub-flow"/>
+	</flow>
+	
+	<sub-flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-sap-impl-sub-flow" doc:id="f716b658-2ebf-4b25-8b94-1b85957fd312" >
+		<ee:transform doc:name="Prepare Request" doc:id="37282acb-ea6f-4ad1-88d0-aac2bbf4da2f">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
-output application/json
+import dw::module::Multipart
+output multipart/form-data
 ---
-"test"]]></ee:set-payload>
+{
+  parts: {
+    EDIMsgHeader: Multipart::field({name:"EDIMsgHeader", value: {
+				"subsidiary": "PAPVN-TL2",
+				"flatFileName": vars.vOutputFileName,
+				"flatFileFormat": "FIXED_WIDTH",
+				"externalSystem": vars.vExternalSystem,
+				"flatFileExtension": ".zip"
+		}, mime: "application/json"})
+  }
+}]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
-			<sftp:write doc:name="Write Output File" doc:id="2e066869-d104-4f29-afb5-a6d5dcf54e19" config-ref="SFTP_Config_Common_Storage" path="/inbound/papvn-tl2/output/" />
-		</foreach>
-		<ee:transform doc:name="Prepare Request" doc:id="fbe8dee3-0657-44e5-b63b-a84872d1b954" >
+		<ee:transform doc:name="Set Resource Path" doc:id="3a2cfcfb-1bed-44a0-876b-5df057f1f63b">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="resourcePath"><![CDATA[%dw 2.0
+output application/java
+---
+if ( vars.vExternalSystem == "EPRO" and vars.vDataInterface == "POResponse" ) "/po-response"
+else 
+	if ( vars.vExternalSystem == "EPRO" and payload.vDataInterface == "EDIResults" ) "/edi-results"
+else
+	if ( vars.vExternalSystem == "SalesEDI" ) "/sales-orders"
+else
+	if ( vars.vExternalSystem == "CMS" ) "/ar-statements"
+else
+	"InvalidExternalSystem"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log Before SAPI Request" doc:id="b14927bd-13f4-4f64-9f25-fa168bc6d060" config-ref="JSON_Logger_Config" message="Initiate call to SAPI">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "START"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<choice doc:name="Choice" doc:id="f705e179-836f-4adf-abb0-2ce1bda6571e" >
+			<when expression='#[vars.resourcePath != "InvalidExternalSystem"]'>
+				<try doc:name="Try" doc:id="5e3c3165-e97e-4714-8f6e-ff393fb72a8c" >
+					<until-successful maxRetries="1" doc:name="Until Successful" doc:id="1d51f239-ee20-4854-a5df-40f462510277">
+			<http:request method="POST" doc:name="SAP POST Request" doc:id="66763f02-950e-4066-89a9-afdd8d3ffc2b" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]">
+							<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json",
+	"X-Client-ID" : "${http.edifile.sapi.client_id}",
+	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
+}]]]></http:headers>
+			</http:request>
+		</until-successful>
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="cff13470-c2b7-40c7-a535-3e601047eff2" >
+							<logger level="INFO" doc:name="Send an Email with ZIP file" doc:id="ce601a62-da2c-4131-820f-0775039491bc" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set Error Response" doc:id="bc8972fb-17fb-4504-910e-236aa32870fd" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 500,
+	errorMessage: "The provided external system: " ++ vars.vExternalSystem ++ " is invalid for " ++ vars.vDataInterface,
+	errorType: 'DATA ERROR',
+	correlationID: vars.TransactionID,
+	timestamp: now()
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<foreach doc:name="For Each" doc:id="f2140455-5735-4c9f-87f2-b91e7ed7fb91" collection="#[vars.vDeleteSplitFiles]">
+								<os:remove doc:name="Remove Split File from ObjectStore" doc:id="94fdcf32-9f27-4554-88e7-0b71d8a63c88" key="#[payload]" objectStore="Object_Store_PAPVNTL2" />
+							</foreach>
+		<json-logger:logger doc:name="Log After SAPI Request" doc:id="9ecad87d-ec5a-4f9a-81d6-f14215bb1ec7" config-ref="JSON_Logger_Config" message="File published successfully to SAP">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</sub-flow>
+	
+	<flow name="sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flow" doc:id="7d5398df-389e-48c0-9b74-3ae3153222e0" >
+<!-- [STUDIO:"Scheduler"]		<scheduler doc:name="Scheduler" doc:id="6b0c5b84-932b-4ae0-b573-4fb3a00014b7" >
+			<scheduling-strategy >
+				<fixed-frequency startDelay="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler> [STUDIO] -->
+		<ee:transform doc:name="Set TransactionId" doc:id="b4ca7070-4a6b-412e-a88a-ddf9547e0345">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID"><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="827f2abc-2dd9-449c-a91a-9977a47c8bce" config-ref="JSON_Logger_Config" message="API START: INIT - Received Message.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CONSUMER START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<ee:transform doc:name="Temp Remove" doc:id="1015e9b1-5620-416b-8eea-773c70f629a7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload]]></ee:set-payload>
+readUrl("classpath://VN12_SAP_GITP R2_20230112191935","application/csv",{header:false,separator:"\n"})]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<http:request method="POST" doc:name="SAP POST Request" doc:id="d98d2ff5-85b1-44e1-9007-a305104039de" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]"/>
-	
-</flow>
-	
-	<flow name="sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flow" doc:id="332633dc-c67c-431c-b301-8b0b29429ea8" >
-		<json-logger:logger doc:name="Entry Logger" doc:id="a2d28cbe-5a81-42e9-924a-8b3446671de5" config-ref="JSON_Logger_Config" message="File Consumer Started"/>
-		<ee:transform doc:name="Set Header Information" doc:id="fec0b0a3-746e-4fdf-8315-5ce4dbeb9040" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<ee:transform doc:name="Get TransHeader" doc:id="a171f2cd-ad97-4159-8ff4-4c1aee1e74b1">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vTransHeader"><![CDATA[%dw 2.0
 output application/json
 ---
-payload[0]]]></ee:set-payload>
-			</ee:message>
+payload[0].column_0]]></ee:set-variable>
+			</ee:variables>
 		</ee:transform>
-		<ee:transform doc:name="Identify Type" doc:id="834a32ef-538f-465f-9cbd-a27d508dda9f" >
+		<ee:transform doc:name="Set Content" doc:id="0376baf7-a9b3-4cd4-b7f0-97a930a126cb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+write((payload[1 to -1].column_0) joinBy  "\n", "application/java")]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Transaction Header" doc:id="a0affcff-6f9c-4f0d-960c-5b7d9c3f0d10" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
-				<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
-output application/java
+				<ee:set-variable variableName="vTransHeaderInfo" ><![CDATA[%dw 2.0
+output application/json
 ---
-if(payload.ApplicationIdCode == "03" and payload.DataTypeCode == "314") "SalesEDI" else if (payload.ApplicationIdCode == "03" and (payload.DataTypeCode contains "AR")) "EPRO" else if(payload.ApplicationIdCode == "05" and payload.DataTypeCode == "GALAXY") "ARStatements" else "invalidType"]]></ee:set-variable>
+{
+    ApplicationIdCode: vars.vTransHeader[24 to 25],
+    DataTypeCode: trim(vars.vTransHeader[26 to 37]),
+    MessageSequence: vars.vTransHeader[101 to 102],
+    TotalMessageSplits: vars.vTransHeader[98 to 100]
+}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<ee:transform doc:name="Prepare FileName" doc:id="b4c68c05-e088-46be-badf-f6d6c5038977" >
+		<ee:transform doc:name="Identify Type" doc:id="2b112608-8ab6-496b-9ed1-6563e8e00ed1" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable resource="dwl/setInboundDataInterface.dwl" variableName="vDataInterface" />
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Prepare FileName" doc:id="7b1ac01b-1575-49d3-acf6-30cb93203708" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
 				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
 output application/java
 ---
-"Z11_" ++ vars.vDataInterface ++"_"++ payload.MessageSequence ++"_"++ payload.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyHHmm"}]]></ee:set-variable>
+"PMPC" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<os:store doc:name="Store Split File" doc:id="223f31f4-9c43-448a-9eb6-aebdbff47104" key="#[vars.vFileName]" objectStore="Object_Store_PMPC"/>
-		<json-logger:logger doc:name="Exit Logger" doc:id="ef935402-38a6-44c5-8018-9d70523aed21" config-ref="JSON_Logger_Config" message="File Consume Process End"/>
-	
-</flow>
-	<flow name="sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow" doc:id="f540deeb-d36c-46b9-bb72-00b9116f3047" >
-		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-pmpc-scheduler" doc:id="6facb5dd-59a9-43b3-91b0-0a2174eb221a" >
+		<json-logger:logger doc:name="Log - Initiate OS" doc:id="d776e0d8-b389-4c84-b2c3-918ff2c170c2" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:store doc:name="Store Split File" doc:id="168e9cc6-b443-4ead-acc2-406a357d08ef" key="#[vars.vFileName]" objectStore="Object_Store_PMPC"/>
+		<json-logger:logger doc:name="Log - OS Status" doc:id="d517b35f-a0d2-41cc-8c28-d717c41b4318" config-ref="JSON_Logger_Config" message="File Processed to Objectstore successfully" tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</flow>
+	<flow name="sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow" doc:id="e6dd2006-48ca-458f-a142-49ff95517538" >
+		<scheduler doc:name="sgst-orders-edi-papi-sap-inbound-papvntl1-scheduler" doc:id="3139f025-9e8c-46ab-8047-d96b96b7bcd6" >
 			<scheduling-strategy >
 				<cron expression="0 0 0/1 ? * * *" />
 			</scheduling-strategy>
 		</scheduler>
-		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="dba06782-64d7-4b22-b398-054f6a5534b4" objectStore="Object_Store_PMPC"/>
-		<ee:transform doc:name="Save Files" doc:id="d3e0be84-76f3-40a2-8d7a-e58ac440422c" >
+		<ee:transform doc:name="Set TransactionId" doc:id="46d46196-a354-4ec9-a682-f311afa2da97" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="TransactionID" ><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="c338993d-6af8-471a-bcc6-c5a933450de3" config-ref="JSON_Logger_Config" message="API:INIT Scheduler Started for PAPVN-TL1">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="cb70f46c-0155-4305-a530-6de12ea1b2fd" objectStore="Object_Store_PMPC"/>
+		<ee:transform doc:name="Save Files" doc:id="68addc6b-b5d1-4814-b28b-cca98f9e44e9" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
@@ -308,7 +1173,7 @@ output application/json
 payload]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-<ee:transform doc:name="File Types" doc:id="b04095eb-872d-4c1e-a796-e707f771e2ff" >
+<ee:transform doc:name="File Types" doc:id="02e99703-6a12-4816-bf9e-71f35e7c9570" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
@@ -318,8 +1183,19 @@ output application/json
 ((payload map ($ splitBy  "_")[1]) distinctBy $) default []]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<foreach doc:name="For Each" doc:id="daa1e670-fd19-4b0c-9b8e-412f457c95e7" collection="#[vars.vFileTypes]">
-			<ee:transform doc:name="Filter Files" doc:id="25483268-476e-4c0c-80f3-096ab9b87357">
+		<foreach doc:name="For Each" doc:id="d386573f-251d-4b33-9152-ed922716a3a7" collection="#[vars.vFileTypes]">
+			<ee:transform doc:name="Set External System" doc:id="4449f654-2a21-46cb-a344-63e137b89f36" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vExternalSystem" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+				
+</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Filter Files" doc:id="4a2a0aab-2c63-4257-85a0-2b9326cfff08">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -327,7 +1203,18 @@ output application/json
 (vars.vAllFiles filter ($ contains payload))]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-<ee:transform doc:name="Set Files In Sequence" doc:id="b75e0edb-4501-4384-a755-8f60131c4f62" >
+<ee:transform doc:name="Set Data Interface" doc:id="adee909e-47b9-4cda-834b-ce2430fabe6d" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vDataInterface" ><![CDATA[%dw 2.0
+output application/java
+---
+(payload[0] splitBy "_")[2]]]></ee:set-variable>
+				</ee:variables>
+			
+</ee:transform>
+			<ee:transform doc:name="Set Files In Sequence" doc:id="355a6529-f70f-49a7-89eb-b927b753c314" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -335,7 +1222,7 @@ output application/json
 payload orderBy $]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
-			<ee:transform doc:name="Set Processing Flag" doc:id="f4f63ef4-63e8-436d-9f34-79a2312ffb40" >
+			<ee:transform doc:name="Set Processing Flag" doc:id="02cbdbdf-869a-4395-a46a-fc239772fb28" >
 				<ee:message >
 				</ee:message>
 				<ee:variables >
@@ -345,35 +1232,264 @@ output application/java
 (sizeOf(payload) == (payload[0] splitBy "_")[3] as Number) default false]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-			<choice doc:name="Choice" doc:id="bd27e1ea-b0ec-4364-9622-7b5b82a3b0bd" >
+			<choice doc:name="Choice" doc:id="a48716fa-334b-4f94-bb2d-b562ac2de616" >
 				<when expression="#[vars.vProcessingFlag]">
-					<flow-ref doc:name="Send File Flow" doc:id="45ef32c5-5984-4a38-959f-787c76bc2805" name="sgst-orders-edi-papi-inbound-PMPC-send-file-flow" />
+					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="7c0f1457-0eb7-46ed-89fc-82c55ee82fdc" name="sgst-orders-edi-papi-inbound-PMPC-send-file-flow" />
 				</when>
-			</choice>
-		</foreach>
-		<logger level="INFO" doc:name="Send file to SAP API" doc:id="5e7f1383-f187-4fb2-b6f6-d0abf2ac67ce" />
-	</flow>
-	<flow name="sgst-orders-edi-papi-inbound-PMPC-send-file-flow" doc:id="77cecea2-32e6-4c58-b87c-47bd5eb28bf8" >
-		<foreach doc:name="For Each" doc:id="c31a8074-e210-41fa-81d9-ecb48238f425">
-			<os:retrieve doc:name="Get File from OS" doc:id="4637d35e-6267-4864-8400-b3872879c87e" key="#[payload]" objectStore="Object_Store_PMPC"/>
-			<ee:transform doc:name="Remove Headers" doc:id="74a7fd60-7243-4f15-bea0-f8212dec5c4c">
-				<ee:message>
-					<ee:set-payload><![CDATA[%dw 2.0
+				<otherwise >
+					<json-logger:logger doc:name="Files Status" doc:id="31528f70-3e3f-4a2b-bdb5-bd8c94d6383c" config-ref="JSON_Logger_Config" message="No Valid files to Process">
+						<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
-"test"]]></ee:set-payload>
-				</ee:message>
-			</ee:transform>
-			<sftp:write doc:name="Write Output File" doc:id="863d5b55-0c2e-4209-a770-3c82d7b5fcc3" config-ref="SFTP_Config_Common_Storage" path='/inbound/pmpc/output/' />
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler END",
+   "status": "END"
+}]]]></json-logger:content>
+					</json-logger:logger>
+				</otherwise>
+			</choice>
 		</foreach>
-		<ee:transform doc:name="Prepare Request" doc:id="117d0d55-fd95-4ece-97de-76869a208ce0" >
+		<ee:transform doc:name="Set Response" doc:id="19885dc5-f3fc-44b3-91a5-0695c6f4d755" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload]]></ee:set-payload>
+{
+  statusCode: 200,
+  statusMessage: "Processing of File is completed",
+  correlationID: vars.TransactionID
+}	]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<http:request method="POST" doc:name="SAP POST Call" doc:id="6122bb97-834a-47c0-87c2-07c20ce551c0" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]"/>
+		<json-logger:logger doc:name="Log - End Event" doc:id="c10dfcd4-177d-43e2-8c4e-1dd7b5788655" config-ref="JSON_Logger_Config" message="API START: END - Completed API request." tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": "SAPI",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVNTL-1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "Scheduler END",
+   "status": "END"
+}]]]></json-logger:content>
+		</json-logger:logger>
 	</flow>
+	<flow name="sgst-orders-edi-papi-inbound-PMPC-send-file-flow" doc:id="9852327e-47cf-45ea-b066-18f0d631b7af" >
+		<ee:transform doc:name="Set File Name" doc:id="09d48f2d-d00b-46b0-8e6e-2c6ea74f0b1a">
+				<ee:message>
+				</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vOutputFileName"><![CDATA[%dw 2.0
+output application/java
+---
+"PMPC" ++ vars.vExternalSystem ++"_"++ vars.vDataInterface ++ now() as String {format: "ddMMyyyyHHmm"} ++ ".txt"]]></ee:set-variable>
+			</ee:variables>
+			
+</ee:transform>
+		<foreach doc:name="For Each" doc:id="5049770e-72c0-448f-aee2-b0ee19a768b0">
+			<ee:transform doc:name="Calculate File Date" doc:id="02e5397a-1c8e-41d9-b6e3-5994611c958d" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
+output application/java
+var currentDate = now() as Date {format : "dd-MM-yyyy"}
+var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
+---
+daysBetween(fileDate,currentDate)]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="96a675d3-5104-41eb-903e-e63693fca4ec" >
+				<when expression="#[vars.vCurrentFileDateDifference &lt; 1]">
+					<ee:transform doc:name="Delete Files" doc:id="17e1e8f8-36bc-401e-b28d-eaa6dbb7f56d">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="vDeleteSplitFiles"><![CDATA[%dw 2.0
+output application/java
+---
+vars.vDeleteSplitFiles default [] ++ [payload]]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+					<os:retrieve doc:name="Get File from OS" doc:id="53877f55-d063-46e9-a2bb-09ecd8689399" key="#[payload]" objectStore="Object_Store_PMPC" />
+					<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="b32f3a48-13b7-45f8-b012-629fa22c764e" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SFTP",
+   "status": "START"
+}]]]></json-logger:content>
+					</json-logger:logger>
+					<sftp:write doc:name="Write Output File" doc:id="3b3fb267-4159-41a7-9076-5d056ab966f8" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/pmpc/output/" ++ vars.vOutputFileName]' mode="APPEND">
+			</sftp:write>
+					<json-logger:logger doc:name="Log - File Publish Status" doc:id="036db6b4-18f8-4994-8df8-d956cb583f4a" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
+						<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SFTP",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+					</json-logger:logger>
+<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="363c0ecb-0b91-459a-b3c0-c6f95bddcbe3" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="Update with Email/Backup" doc:id="b6ac9632-42a6-47e0-91ed-9e4da5ecba1d" />
+					<logger level="INFO" doc:name="Delete Old files" doc:id="09050b0d-6c44-4706-9c64-69ee26451976" message="delete old files"/>
+				</otherwise>
+			</choice>
+		</foreach>
+		<flow-ref doc:name="Call SAP Flow" doc:id="cee28e05-9b73-406b-9ca4-fe5b258445b4" name="sgst-orders-edi-papi-inbound-PMPC-sap-impl-sub-flow"/>
+	</flow>
+	
+	<sub-flow name="sgst-orders-edi-papi-inbound-PMPC-sap-impl-sub-flow" doc:id="281ac50a-7682-49ad-9e3e-134fe9394ca1" >
+		<ee:transform doc:name="Prepare Request" doc:id="ac46190b-0677-4123-a3a5-70b85dd75028">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output multipart/form-data
+---
+{
+	parts: {
+		EDIMsgHeader: {
+			headers: {
+				"Content-Type": "application/json"
+			},
+			content: {
+				"subsidiary": "PMPC",
+				"flatFileName": vars.vOutputFileName,
+				"flatFileFormat": "FIXED_WIDTH",
+				"externalSystem": vars.vExternalSystem,
+				"flatFileExtension": ".zip"
+			}
+		}
+	}
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		<ee:transform doc:name="Set Resource Path" doc:id="91e280d3-7148-4479-9065-fbeadc958ad0">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="resourcePath"><![CDATA[%dw 2.0
+output application/java
+---
+if ( vars.vExternalSystem == "EPRO" and vars.vDataInterface == "POResponse" ) "/po-response"
+else 
+	if ( vars.vExternalSystem == "EPRO" and payload.vDataInterface == "EDIResults" ) "/edi-results"
+else
+	if ( vars.vExternalSystem == "SalesEDI" ) "/sales-orders"
+else
+	if ( vars.vExternalSystem == "CMS" ) "/ar-statements"
+else
+	"InvalidExternalSystem"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log Before SAPI Request" doc:id="12bae0ba-a9f0-45fc-a9f7-126c7fa8e37f" config-ref="JSON_Logger_Config" message="Initiate call to SAPI">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "START"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<choice doc:name="Choice" doc:id="65ae7df6-14f9-4455-b36d-c8c73fd0c4e1" >
+			<when expression='#[vars.resourcePath != "InvalidExternalSystem"]'>
+				<try doc:name="Try" doc:id="0510ae4d-aa71-4773-a459-1eac829ced9e" >
+					<until-successful maxRetries="1" doc:name="Until Successful" doc:id="2065d48e-2d77-4beb-a0dd-23a4db67e49d">
+			<http:request method="POST" doc:name="SAP POST Request" doc:id="573355d0-9afd-4707-88ef-b9b46a13d5f7" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]" outputMimeType="multipart/form-data">
+				<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json",
+	"X-Client-ID" : "${http.edifile.sapi.client_id}",
+	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
+}]]]></http:headers>
+			</http:request>
+		</until-successful>
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="47f78113-e865-4dbd-aac5-62a9da280258" >
+							<logger level="INFO" doc:name="Send an Email with ZIP file" doc:id="a3ae2a43-4b82-4ed0-937b-1009f7baac14" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set Error Response" doc:id="165ee0ae-732e-4599-9669-58688533865c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 500,
+	errorMessage: "The provided external system: " ++ vars.vExternalSystem ++ " is invalid for " ++ vars.vDataInterface,
+	errorType: 'DATA ERROR',
+	correlationID: vars.TransactionID,
+	timestamp: now()
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<foreach doc:name="For Each" doc:id="e2ab75e3-2232-4d9d-aa1b-33e8ee9a5d32" collection="#[vars.vDeleteSplitFiles]">
+								<os:remove doc:name="Remove Split File from ObjectStore" doc:id="17752074-73fa-4a3f-a59c-ed5515c498a8" key="#[payload]" objectStore="Object_Store_PMPC" />
+							</foreach>
+		<json-logger:logger doc:name="Log After SAPI Request" doc:id="334c0bed-d28b-4b0f-a883-d80a96fb3c4a" config-ref="JSON_Logger_Config" message="File published successfully to SAP">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</sub-flow>
+	
 </mule>

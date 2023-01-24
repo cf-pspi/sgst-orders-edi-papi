@@ -81,7 +81,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		</http:request-connection>
 	</http:request-config>
 	<http:request-config name="HTTP_EDIFILE_SAP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="1d45d672-60b2-4ad2-a86a-f2fc93b20efb" basePath="${http.edifile.sapi.basepath}" >
-		<http:request-connection protocol="HTTPS" host="${http.edifile.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+		<http:request-connection protocol="HTTPS" host="${http.edifile.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}" usePersistentConnections="false">
 			<reconnection >
 				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
 			</reconnection>
