@@ -107,5 +107,5 @@ json:
   logger:
     application:
       version: '1.0'
-      name: 'sample-json-logger'
-    env: 'local'
+      name: 'sgst-orders-edi-papi'
+    env: 'sit'

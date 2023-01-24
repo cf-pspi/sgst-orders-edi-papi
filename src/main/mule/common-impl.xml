@@ -13,16 +13,44 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
 http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
 	<sub-flow name="sgst-orders-papi-impl_decompress-flow" doc:id="b214380a-310b-41d3-85e5-07c105720d48" >
+		<json-logger:logger doc:name="Log Before Decompress" doc:id="1666dd1c-8b6c-4905-9f7d-8ed0d2148ca4" config-ref="JSON_Logger_Config" message="File decompression initiated.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.initiate')
+}]]]></json-logger:content>
+		</json-logger:logger>
 		<compression:decompress doc:name="Decompress" doc:id="7795e48b-e543-40c9-8e31-303f5cb6c972" outputMimeType='text/csv; streaming=true; header=false; separator="\\n"; escape="\\"'>
 			<non-repeatable-stream />
 			<compression:decompressor >
 				<compression:zip-decompressor />
 			</compression:decompressor>
 		</compression:decompress>
-		<json-logger:logger doc:name="Log After Decompress" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="AFTER_REQUEST" message='#["Decompression of file is Successful for correlation Id " ++ vars.TransactionID]'>
-			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+		<json-logger:logger doc:name="Log After Decompress" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="AFTER_REQUEST" message='File decompression success.'>
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
 {
-    payload: JSONLoggerModule::stringifyNonJSON(vars.eventAuditMessage) 
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.success')
 }]]]></json-logger:content>
 		</json-logger:logger>
 	</sub-flow>
@@ -42,7 +70,40 @@ output application/java
 leftPad(vars.counter,5,0) ++ "_" ++ vars.TransactionID]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
-					<os:store doc:name="Store" doc:id="f32d840d-ef06-4308-9d9a-be50509732e1" key="#[vars.objectStoreKey]" objectStore="Object_store"/>
-		<json-logger:logger doc:name="Log ObjectStore" doc:id="6f7d3618-1c02-4834-9a6a-1f42ae10807c" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for correlation Id " ++ vars.TransactionID ++ " and ObjectStoreKey: " ++ vars.objectStoreKey]'/>
+					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="904a810b-ea19-411f-a352-d6d8e3452285" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.initiate')
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:store doc:name="Store" doc:id="f32d840d-ef06-4308-9d9a-be50509732e1" key="#[vars.objectStoreKey]" objectStore="Object_store"/>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="6f7d3618-1c02-4834-9a6a-1f42ae10807c" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.success')
+}]]]></json-logger:content>
+		</json-logger:logger>
 	</sub-flow>
 </mule>

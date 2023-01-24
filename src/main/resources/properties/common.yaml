@@ -1,3 +1,17 @@
+#Json logger Properties
+api:
+  action:    
+     api-start: 'API START'
+     api-end: 'API END'
+     process: 'PROCESS'
+     call-api: 'CALL API'
+     call-extsys: 'CALL EXT-SYS'
+  status: 
+    initiate: 'INIT'
+    success: 'SUCCESS'
+    failure: 'FAILURE'
+    complete: 'COMPLETE'
+
 # HTTP config 
 http:
   port: "8081"
@@ -58,3 +72,31 @@ sapi:
     purchaseResults: ''
     fpl: 'P14'
     arStatements: '05GALAXY'
+
+#Error Configurations
+
+errors:
+  BAD_REQUEST: 
+    errorCode: '400'
+    errorType: 'BAD_REQUEST'
+  FILE_NOT_FOUND:
+    errorCode: '500'
+    errorType: 'FILE_NOT_FOUND'
+  EXPRESSION:
+    errorCode: '501'
+    errorType: 'EXPRESSION'
+  CONNECTIVITY: 
+    errorCode: '500'
+    errorType: 'CONNECTIVITY'
+  FORBIDDEN:
+    errorCode: '403'
+    errorType: 'FORBIDDEN'
+  RETRY_EXHAUSTED:
+    errorCode: '501'
+    errorType: 'RETRY_EXHAUSTED'
+  INTERNAL_SERVER_ERROR: 
+    errorCode: '500'
+    errorType: 'INTERNAL_SERVER_ERROR'
+  STREAM_MAXIMUM_SIZE_EXCEEDED:
+    errorCode: '500'
+    errorType: 'STREAM_MAXIMUM_SIZE_EXCEEDED'
