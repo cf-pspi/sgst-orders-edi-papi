@@ -51,7 +51,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		</http:request-connection>
 	</http:request-config>
 	<http:request-config name="PAPVNTL1_HTTP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="23a46f5e-d02a-4740-9831-5bf8b14b51d2" basePath="${http.papvntl1.sapi.basepath}" >
-		<http:request-connection protocol="HTTPS" host="${http.papvntl1.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+		<http:request-connection protocol="HTTPS" host="${http.papvntl1.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}" usePersistentConnections="false">
 			<reconnection >
 				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
 			</reconnection>
@@ -61,7 +61,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		</http:request-connection>
 	</http:request-config>
 	<http:request-config name="PAPVNTL2_HTTP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="9e6e0ff3-99a6-4eb5-a7fb-910cbf86c42c" basePath="${http.papvntl2.sapi.basepath}" >
-		<http:request-connection protocol="HTTPS" host="${http.papvntl2.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+		<http:request-connection protocol="HTTPS" host="${http.papvntl2.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}" usePersistentConnections="false">
 			<reconnection >
 				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
 			</reconnection>
@@ -71,7 +71,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		</http:request-connection>
 	</http:request-config>
 	<http:request-config name="PMPC_HTTP_Request_Configuration" doc:name="HTTP Request configuration" doc:id="d3e14dce-c5ae-489e-a427-740437cece86" basePath="${http.pmpc.sapi.basepath}" >
-		<http:request-connection protocol="HTTPS" host="${http.pmpc.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}">
+		<http:request-connection protocol="HTTPS" host="${http.pmpc.sapi.host}" maxConnections="${http.sapi.max.connections}" connectionIdleTimeout="${http.sapi.connections.idle.timeout}" responseBufferSize="${http.sapi.response.buffer.size}" usePersistentConnections="false">
 			<reconnection >
 				<reconnect frequency="${http.sapi.reconnection.frequency}" count="${http.sapi.reconnection.count}" />
 			</reconnection>
