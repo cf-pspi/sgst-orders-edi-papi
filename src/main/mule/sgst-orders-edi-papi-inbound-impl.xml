@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:file="http://www.mulesoft.org/schema/mule/file"
-	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:compression="http://www.mulesoft.org/schema/mule/compression" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ibm-mq http://www.mulesoft.org/schema/mule/ibm-mq/current/mule-ibm-mq.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
@@ -10,7 +10,8 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd">
 	<file:config name="File_Config" doc:name="File Config" doc:id="b56dcfeb-c773-4cc2-8cd4-dbabb643387b" />
 	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flow" doc:id="a0f71ccd-0501-4f51-975c-0984ec7efc50" >
 <!-- [STUDIO:"Scheduler"]		<scheduler doc:name="Scheduler" doc:id="618d3997-9035-42ec-9e85-fca90cd8cc39" >
@@ -251,23 +252,25 @@ output application/java
 					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="452137cf-1349-4ea1-aba7-46ea1460fa6d" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-send-file-flow" />
 				</when>
 				<otherwise >
-					<json-logger:logger doc:name="Files Status" doc:id="aa5ab686-e09d-4af7-879b-376495987069" config-ref="JSON_Logger_Config" message="No Valid files to Process">
-						<json-logger:content ><![CDATA[#[%dw 2.0
-output application/json
+					<foreach doc:name="For Each" doc:id="8f7e958c-5ab5-4bbf-89f1-f7d79028be13" >
+						<ee:transform doc:name="Calculate Date Difference" doc:id="d414e31b-3472-4afe-a999-27db8c470d01">
+						<ee:message>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="vCurrentFileDateDifference"><![CDATA[%dw 2.0
+output application/java
+var currentDate = now() as Date {format : "dd-MM-yyyy"}
+var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
 ---
-{
-   "flowDirection": "INBOUND",
-   "source": "Scheduler",
-   "target": "SAPI",
-   "fileName":  "" ,
-   "errorCode": "",
-   "errorMessage": "",
-   "subsidiary": "PAPVN-TL1",
-   "apiName": "sgst-orders-edi-papi",
-   "action": "Scheduler END",
-   "status": "END"
-}]]]></json-logger:content>
-					</json-logger:logger>
+daysBetween(fileDate,currentDate)]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<choice doc:name="Choice" doc:id="5f44d556-b026-475d-ac66-6c045a7ccaeb">
+						<when expression="#[vars.vCurrentFileDateDifference &gt; 1]">
+							<os:remove doc:name="Remove Old File" doc:id="51142c80-65cf-417d-a025-49b049142094" key="#[payload]" objectStore="Object_Store_PAPVNTL1" />
+						</when>
+					</choice>
+					</foreach>
 				</otherwise>
 			</choice>
 		</foreach>
@@ -314,21 +317,7 @@ output application/java
 			
 </ee:transform>
 		<foreach doc:name="For Each" doc:id="abacf372-9011-4698-9580-fb18e63cf87f">
-			<ee:transform doc:name="Calculate File Date" doc:id="9d4e583d-b135-49cc-86f3-b4954cea3fc8" >
-				<ee:message >
-				</ee:message>
-				<ee:variables >
-					<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
-output application/java
-var currentDate = now() as Date {format : "dd-MM-yyyy"}
-var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
----
-daysBetween(fileDate,currentDate)]]></ee:set-variable>
-				</ee:variables>
-			</ee:transform>
-			<choice doc:name="Choice" doc:id="3ba080c1-7638-4bda-9145-88d525a77f75" >
-				<when expression="#[vars.vCurrentFileDateDifference &lt; 1]">
-					<ee:transform doc:name="Delete Files" doc:id="47a75d6a-4d4d-41ed-9a81-5160f99e8a78">
+			<ee:transform doc:name="Delete Files" doc:id="47a75d6a-4d4d-41ed-9a81-5160f99e8a78">
 				<ee:message>
 				</ee:message>
 				<ee:variables>
@@ -338,9 +327,9 @@ output application/java
 vars.vDeleteSplitFiles default [] ++ [payload]]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-					<os:retrieve doc:name="Get File from OS" doc:id="9e3cb052-7bae-412a-91b9-0b62b9304f11" key="#[payload]" objectStore="Object_Store_PAPVNTL1" />
-					<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="c8273733-2fb4-440e-b32f-ca43c095d1ee" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
-						<json-logger:content ><![CDATA[#[%dw 2.0
+			<os:retrieve doc:name="Get File from OS" doc:id="9e3cb052-7bae-412a-91b9-0b62b9304f11" key="#[payload]" objectStore="Object_Store_PAPVNTL1" />
+			<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="c8273733-2fb4-440e-b32f-ca43c095d1ee" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
+						<json-logger:content><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
@@ -356,10 +345,10 @@ output application/json
    "status": "START"
 }]]]></json-logger:content>
 					</json-logger:logger>
-					<sftp:write doc:name="Write Output File" doc:id="6bf197c0-c211-40cf-9079-d12bf8f45516" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl1/output/" ++ vars.vOutputFileName]' mode="APPEND">
+			<sftp:write doc:name="Write Output File" doc:id="6bf197c0-c211-40cf-9079-d12bf8f45516" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl1/output/" ++ vars.vOutputFileName]' mode="APPEND">
 			</sftp:write>
-					<json-logger:logger doc:name="Log - File Publish Status" doc:id="1c309464-aa0d-4b78-be87-70929c8cb676" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
-						<json-logger:content ><![CDATA[#[%dw 2.0
+			<json-logger:logger doc:name="Log - File Publish Status" doc:id="1c309464-aa0d-4b78-be87-70929c8cb676" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
+						<json-logger:content><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
@@ -375,16 +364,8 @@ output application/json
    "status": "SUCCESS"
 }]]]></json-logger:content>
 					</json-logger:logger>
-<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="d9fbe33d-027d-4223-a594-f23c53c044dc" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
-				</when>
-				<otherwise >
-					<logger level="INFO" doc:name="Update with Email/Backup" doc:id="0d048b9a-58e9-4f63-b23c-4ea71a8ec5a4" />
-					<logger level="INFO" doc:name="Delete Old files" doc:id="b31d9e47-c996-49ac-a64b-d13bee152443" message="delete old files"/>
-				</otherwise>
-			</choice>
+			<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="d9fbe33d-027d-4223-a594-f23c53c044dc" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
 		</foreach>
-		<sftp:read doc:name="Read" doc:id="1c4a56e0-8035-4d9d-951b-52eb21d98558" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl1/output/" ++ vars.vOutputFileName]'/>
-		<logger level="INFO" doc:name="Logger" doc:id="5fe9ad8b-45b4-44dd-8b2a-57f06eb6cbfe" message="#[payload]"/>
 		<flow-ref doc:name="Call SAP Flow" doc:id="6ddaef86-44ec-42fc-9abb-10cab3e47097" name="sgst-orders-edi-papi-inbound-common-sap-impl-sub-flow"/>
 	</flow>
 	
@@ -747,24 +728,27 @@ output application/java
 					<flow-ref doc:name="sgst-orders-edi-papi-inbound-common-flow" doc:id="e22c5b3e-a9d3-4a48-9b10-a28098052333" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-send-file-flow" />
 				</when>
 				<otherwise >
-					<json-logger:logger doc:name="Files Status" doc:id="b76d4ccc-bf5b-407b-93d6-5d14e572b359" config-ref="JSON_Logger_Config" message="No Valid files to Process">
-						<json-logger:content ><![CDATA[#[%dw 2.0
-output application/json
+					<foreach doc:name="For Each" doc:id="a14a43de-abdd-4c9a-b92c-f85db06ee3a8" >
+						<ee:transform doc:name="Calculate Date" doc:id="530d0ac8-f5d7-4b71-934d-481add4096f8">
+						<ee:message>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="vCurrentFileDateDifference"><![CDATA[%dw 2.0
+output application/java
+var currentDate = now() as Date {format : "dd-MM-yyyy"}
+var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
 ---
-{
-   "flowDirection": "INBOUND",
-   "source": "Scheduler",
-   "target": "SAPI",
-   "fileName":  "" ,
-   "errorCode": "",
-   "errorMessage": "",
-   "subsidiary": "PAPVNTL-1",
-   "apiName": "sgst-orders-edi-papi",
-   "action": "Scheduler END",
-   "status": "END"
-}]]]></json-logger:content>
-					</json-logger:logger>
-				</otherwise>
+daysBetween(fileDate,currentDate)]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<choice doc:name="Choice" doc:id="14b3d194-e319-471e-88bf-1df90fc74374" >
+							<when expression="#[vars.vCurrentFileDateDifference &gt; 1]">
+								<os:remove doc:name="Remove Old File" doc:id="121afcbd-ff7f-4490-af4a-fc15721da26c" key="#[payload]" objectStore="Object_Store_PAPVNTL2"/>
+							</when>
+						</choice>
+					</foreach>
+				
+</otherwise>
 			</choice>
 		</foreach>
 		<ee:transform doc:name="Set Response" doc:id="6c205f4f-8482-4c0b-b587-25f955ab6ea0" >
@@ -810,21 +794,7 @@ output application/java
 			
 </ee:transform>
 		<foreach doc:name="For Each" doc:id="b40fb742-3e67-4ca2-91e4-1b0c6093e89c">
-			<ee:transform doc:name="Calculate File Date" doc:id="5128778d-78f7-476d-b396-a46c3afed4ac" >
-				<ee:message >
-				</ee:message>
-				<ee:variables >
-					<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
-output application/java
-var currentDate = now() as Date {format : "dd-MM-yyyy"}
-var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
----
-daysBetween(fileDate,currentDate)]]></ee:set-variable>
-				</ee:variables>
-			</ee:transform>
-			<choice doc:name="Choice" doc:id="11593242-e80c-4228-a261-ce75b9511e9a" >
-				<when expression="#[vars.vCurrentFileDateDifference &lt; 1]">
-					<ee:transform doc:name="Delete Files" doc:id="25ed645b-47cc-41e4-9d79-a42108a36e0d">
+			<ee:transform doc:name="Delete Files" doc:id="25ed645b-47cc-41e4-9d79-a42108a36e0d">
 				<ee:message>
 				</ee:message>
 				<ee:variables>
@@ -834,9 +804,9 @@ output application/java
 vars.vDeleteSplitFiles default [] ++ [payload]]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-					<os:retrieve doc:name="Get File from OS" doc:id="38f7afd5-e71b-4a91-87ec-08418a6a1274" key="#[payload]" objectStore="Object_Store_PAPVNTL2" />
-					<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="e523cdad-688b-4544-80d5-1bc996f8a26a" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
-						<json-logger:content ><![CDATA[#[%dw 2.0
+			<os:retrieve doc:name="Get File from OS" doc:id="38f7afd5-e71b-4a91-87ec-08418a6a1274" key="#[payload]" objectStore="Object_Store_PAPVNTL2" />
+			<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="e523cdad-688b-4544-80d5-1bc996f8a26a" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
+						<json-logger:content><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
@@ -852,10 +822,10 @@ output application/json
    "status": "START"
 }]]]></json-logger:content>
 					</json-logger:logger>
-					<sftp:write doc:name="Write Output File" doc:id="39774b22-7a1c-46c6-b951-279ec4da6c1d" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl2/output/" ++ vars.vOutputFileName]' mode="APPEND">
+			<sftp:write doc:name="Write Output File" doc:id="39774b22-7a1c-46c6-b951-279ec4da6c1d" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl2/output/" ++ vars.vOutputFileName]' mode="APPEND">
 			</sftp:write>
-					<json-logger:logger doc:name="Log - File Publish Status" doc:id="1412f96b-da3e-4749-ad18-ddde16345b40" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
-						<json-logger:content ><![CDATA[#[%dw 2.0
+			<json-logger:logger doc:name="Log - File Publish Status" doc:id="1412f96b-da3e-4749-ad18-ddde16345b40" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
+						<json-logger:content><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
@@ -871,13 +841,7 @@ output application/json
    "status": "SUCCESS"
 }]]]></json-logger:content>
 					</json-logger:logger>
-<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="efdeed03-633f-4cff-a930-d3bf5aa4088b" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
-				</when>
-				<otherwise >
-					<logger level="INFO" doc:name="Update with Email/Backup" doc:id="82af13ef-98d3-4e8e-81e9-d92d26b72b64" />
-					<logger level="INFO" doc:name="Delete Old files" doc:id="fca9da08-9540-4c2f-903e-5e69226bd15a" message="delete old files"/>
-				</otherwise>
-			</choice>
+			<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="efdeed03-633f-4cff-a930-d3bf5aa4088b" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
 		</foreach>
 		<flow-ref doc:name="Call SAP Flow" doc:id="ebeb98fd-1fa8-456f-aadd-851568500334" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-sap-impl-sub-flow"/>
 	</flow>
@@ -957,6 +921,12 @@ output application/json
 		</until-successful>
 					<error-handler >
 						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="cff13470-c2b7-40c7-a535-3e601047eff2" >
+							<sftp:read doc:name="Read Output File" doc:id="7b38a546-743e-4ef3-99fe-c63377b6a296" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl2/output/" ++ vars.vOutputFileName]'/>
+							<compression:compress doc:name="Compress" doc:id="588ec69d-b052-49f0-99ce-9fad95133370" >
+								<compression:compressor >
+									<compression:zip-compressor />
+								</compression:compressor>
+							</compression:compress>
 							<logger level="INFO" doc:name="Send an Email with ZIP file" doc:id="ce601a62-da2c-4131-820f-0775039491bc" />
 						</on-error-continue>
 					</error-handler>
@@ -1093,7 +1063,7 @@ output application/json
 				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
 output application/java
 ---
-"PMPC" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
+"PMPC_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<json-logger:logger doc:name="Log - Initiate OS" doc:id="d776e0d8-b389-4c84-b2c3-918ff2c170c2" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
@@ -1258,7 +1228,27 @@ output application/json
    "status": "END"
 }]]]></json-logger:content>
 					</json-logger:logger>
-				</otherwise>
+					<foreach doc:name="For Each" doc:id="a7652488-90bc-4bf6-a90b-b8787cfd454a" >
+						<ee:transform doc:name="Calculate Date Difference" doc:id="7d22584b-8199-46c0-9738-90669a888264">
+						<ee:message>
+						</ee:message>
+							<ee:variables >
+								<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
+output application/java
+var currentDate = now() as Date {format : "dd-MM-yyyy"}
+var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
+---
+daysBetween(fileDate,currentDate)]]></ee:set-variable>
+							</ee:variables>
+					</ee:transform>
+						<choice doc:name="Choice" doc:id="e20943fa-edf5-43f1-b839-ff3ee599236e">
+						<when expression="#[vars.vCurrentFileDateDifference &gt; 1]">
+							<os:remove doc:name="Remove Old File" doc:id="f00dd761-d6fe-4cba-a98c-0ee03e422051" key="#[payload]" objectStore="Object_Store_PMPC"/>
+						</when>
+					</choice>
+					</foreach>
+				
+</otherwise>
 			</choice>
 		</foreach>
 		<ee:transform doc:name="Set Response" doc:id="19885dc5-f3fc-44b3-91a5-0695c6f4d755" >
@@ -1304,21 +1294,7 @@ output application/java
 			
 </ee:transform>
 		<foreach doc:name="For Each" doc:id="5049770e-72c0-448f-aee2-b0ee19a768b0">
-			<ee:transform doc:name="Calculate File Date" doc:id="02e5397a-1c8e-41d9-b6e3-5994611c958d" >
-				<ee:message >
-				</ee:message>
-				<ee:variables >
-					<ee:set-variable variableName="vCurrentFileDateDifference" ><![CDATA[%dw 2.0
-output application/java
-var currentDate = now() as Date {format : "dd-MM-yyyy"}
-var fileDate = ((payload splitBy "_")[-1]) as Date {format: 'ddMMyyyyHHmm'} as String {format: 'dd-MM-yyyy'} as Date {format: 'dd-MM-yyyy'}
----
-daysBetween(fileDate,currentDate)]]></ee:set-variable>
-				</ee:variables>
-			</ee:transform>
-			<choice doc:name="Choice" doc:id="96a675d3-5104-41eb-903e-e63693fca4ec" >
-				<when expression="#[vars.vCurrentFileDateDifference &lt; 1]">
-					<ee:transform doc:name="Delete Files" doc:id="17e1e8f8-36bc-401e-b28d-eaa6dbb7f56d">
+			<ee:transform doc:name="Delete Files" doc:id="17e1e8f8-36bc-401e-b28d-eaa6dbb7f56d">
 				<ee:message>
 				</ee:message>
 				<ee:variables>
@@ -1328,9 +1304,9 @@ output application/java
 vars.vDeleteSplitFiles default [] ++ [payload]]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-					<os:retrieve doc:name="Get File from OS" doc:id="53877f55-d063-46e9-a2bb-09ecd8689399" key="#[payload]" objectStore="Object_Store_PMPC" />
-					<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="b32f3a48-13b7-45f8-b012-629fa22c764e" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
-						<json-logger:content ><![CDATA[#[%dw 2.0
+			<os:retrieve doc:name="Get File from OS" doc:id="53877f55-d063-46e9-a2bb-09ecd8689399" key="#[payload]" objectStore="Object_Store_PMPC" />
+			<json-logger:logger doc:name="Log - Initiate File Publish" doc:id="b32f3a48-13b7-45f8-b012-629fa22c764e" config-ref="JSON_Logger_Config" message="Initiate CALL to SFTP to store the File ">
+						<json-logger:content><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
@@ -1346,10 +1322,10 @@ output application/json
    "status": "START"
 }]]]></json-logger:content>
 					</json-logger:logger>
-					<sftp:write doc:name="Write Output File" doc:id="3b3fb267-4159-41a7-9076-5d056ab966f8" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/pmpc/output/" ++ vars.vOutputFileName]' mode="APPEND">
+			<sftp:write doc:name="Write Output File" doc:id="3b3fb267-4159-41a7-9076-5d056ab966f8" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/pmpc/output/" ++ vars.vOutputFileName]' mode="APPEND">
 			</sftp:write>
-					<json-logger:logger doc:name="Log - File Publish Status" doc:id="036db6b4-18f8-4994-8df8-d956cb583f4a" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
-						<json-logger:content ><![CDATA[#[%dw 2.0
+			<json-logger:logger doc:name="Log - File Publish Status" doc:id="036db6b4-18f8-4994-8df8-d956cb583f4a" config-ref="JSON_Logger_Config" message="File Processed to SFTP successfully">
+						<json-logger:content><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
@@ -1365,13 +1341,7 @@ output application/json
    "status": "SUCCESS"
 }]]]></json-logger:content>
 					</json-logger:logger>
-<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="363c0ecb-0b91-459a-b3c0-c6f95bddcbe3" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
-				</when>
-				<otherwise >
-					<logger level="INFO" doc:name="Update with Email/Backup" doc:id="b6ac9632-42a6-47e0-91ed-9e4da5ecba1d" />
-					<logger level="INFO" doc:name="Delete Old files" doc:id="09050b0d-6c44-4706-9c64-69ee26451976" message="delete old files"/>
-				</otherwise>
-			</choice>
+			<!-- [STUDIO:"Write File"]					<file:write doc:name="Write File" doc:id="363c0ecb-0b91-459a-b3c0-c6f95bddcbe3" config-ref="File_Config" path="C:\Panasonic\TestData\Output\output.txt" mode="APPEND"/> [STUDIO] -->
 		</foreach>
 		<flow-ref doc:name="Call SAP Flow" doc:id="cee28e05-9b73-406b-9ca4-fe5b258445b4" name="sgst-orders-edi-papi-inbound-PMPC-sap-impl-sub-flow"/>
 	</flow>
