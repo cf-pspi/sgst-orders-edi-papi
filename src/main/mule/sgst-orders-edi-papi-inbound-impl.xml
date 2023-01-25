@@ -455,7 +455,7 @@ output application/json
 				<http:headers><![CDATA[#[output application/java
 ---
 {
-	"Content-Type" : "application/json",
+	"correlationID" : vars.TransactionID,
 	"X-Client-ID" : "${http.edifile.sapi.client_id}",
 	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
 }]]]></http:headers>
@@ -886,19 +886,23 @@ output application/json
 		<ee:transform doc:name="Prepare Request" doc:id="37282acb-ea6f-4ad1-88d0-aac2bbf4da2f">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
-import dw::module::Multipart
 output multipart/form-data
 ---
 {
-  parts: {
-    EDIMsgHeader: Multipart::field({name:"EDIMsgHeader", value: {
+	parts: {
+		EDIMsgHeader: {
+			headers: {
+				"Content-Type": "application/json"
+			},
+			content: {
 				"subsidiary": "PAPVN-TL2",
 				"flatFileName": vars.vOutputFileName,
 				"flatFileFormat": "FIXED_WIDTH",
 				"externalSystem": vars.vExternalSystem,
 				"flatFileExtension": ".zip"
-		}, mime: "application/json"})
-  }
+			}
+		}
+	}
 }]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
@@ -941,11 +945,11 @@ output application/json
 			<when expression='#[vars.resourcePath != "InvalidExternalSystem"]'>
 				<try doc:name="Try" doc:id="5e3c3165-e97e-4714-8f6e-ff393fb72a8c" >
 					<until-successful maxRetries="1" doc:name="Until Successful" doc:id="1d51f239-ee20-4854-a5df-40f462510277">
-			<http:request method="POST" doc:name="SAP POST Request" doc:id="66763f02-950e-4066-89a9-afdd8d3ffc2b" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]">
+			<http:request method="POST" doc:name="SAP POST Request" doc:id="66763f02-950e-4066-89a9-afdd8d3ffc2b" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]" outputMimeType="multipart/form-data">
 							<http:headers><![CDATA[#[output application/java
 ---
 {
-	"Content-Type" : "application/json",
+	"correlationID" : vars.TransactionID,
 	"X-Client-ID" : "${http.edifile.sapi.client_id}",
 	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
 }]]]></http:headers>
@@ -1439,7 +1443,7 @@ output application/json
 				<http:headers><![CDATA[#[output application/java
 ---
 {
-	"Content-Type" : "application/json",
+	"correlationID" : vars.TransactionID,
 	"X-Client-ID" : "${http.edifile.sapi.client_id}",
 	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
 }]]]></http:headers>

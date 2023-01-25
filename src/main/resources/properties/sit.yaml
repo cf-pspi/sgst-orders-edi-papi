@@ -68,7 +68,7 @@ http:
       client_secret: '671B051dA51146B8A6eA36490C1B2F05'
       host: 'sgst-edifile-sap-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
-      basepath: '/api'
+      basepath: '/api/v1'
       purchaseOrdersPath: '/po-response'
       ediResultsPath: '/edi-results'
       salesOrderPath: '/sales-order'
