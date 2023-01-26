@@ -90,10 +90,17 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 			</tls:context>
 		</http:request-connection>
 	</http:request-config>
-	<ibm-mq:config name="IBM_MQ_Config" doc:name="IBM MQ Config" doc:id="5e67567a-0f4d-477f-9d8d-c42fc7253608" >
-		<ibm-mq:connection cssId="819" specification="JMS_1_1">
+	<!-- <ibm-mq:config name="IBM_MQ_Config" doc:name="IBM MQ Config" doc:id="5e67567a-0f4d-477f-9d8d-c42fc7253608" >
+		<ibm-mq:connection cssId="819" specification="JMS_1_1" targetClient="NO_JMS_COMPLIANT">
 			<ibm-mq:connection-mode >
 				<ibm-mq:client host="133.184.33.2" port="1434" queueManager="GW4_JP" channel="CS352.TO.GW4_JP" />
+			</ibm-mq:connection-mode>
+		</ibm-mq:connection>
+	</ibm-mq:config> -->
+		<ibm-mq:config name="IBM_MQ_Config-TL2-test" doc:name="IBM MQ Config" doc:id="42a00b91-99cf-4679-9e34-ef280d1a8b13" >
+		<ibm-mq:connection cssId='819' specification="JMS_1_1" targetClient="NO_JMS_COMPLIANT">
+			<ibm-mq:connection-mode >
+				<ibm-mq:client host="10.181.168.223" port="1434" queueManager="VGW4_JP" channel="CS352.TO.VGW4_JP" />
 			</ibm-mq:connection-mode>
 		</ibm-mq:connection>
 	</ibm-mq:config>

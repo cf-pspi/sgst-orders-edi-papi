@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_7be9ff14_bb20_4f98_a763_e20db3728f73_Input_Variables_vAllFiles = Array<String>
+

@@ -1,8 +1,0 @@
-%dw 2.0
-
-type auto_5cac3e8f_1c2f_4ab5_bb6d_6e73848d03ab_Output_Payload = {|
-  statusCode: Number, 
-  statusMessage: String, 
-  correlationID: Null
-|}
-
