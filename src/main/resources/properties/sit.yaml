@@ -74,6 +74,23 @@ http:
       salesOrderPath: '/sales-order'
       arStatementsPath: '/ar-statements'
 
+  ob:
+    tokenURL: 'https://anypoint.mulesoft.com/accounts/oauth2/token'
+    client_id: 'ADAM_INTEGRATIONS_358a56d7-94c9-4233-b04a-67c23ec7820e'
+    client_secret: 'B9E634C412344aA282E950E9Fc814856'
+    host: 'object-store-ap-southeast-1.anypoint.mulesoft.com'
+    port: '443'
+    basePath: '/api/v1'
+    keyListPath: '/organizations/{orgId}/environments/{envId}/stores/{storeId}/partitions/{partitionId}/keys'
+    keyValuePath: '/organizations/{orgId}/environments/{envId}/stores/{storeId}/partitions/{partitionId}/keys/{keyId}'
+    orgId: '69195e0c-f771-4438-a4b2-58237c4947b6'
+    envId: '62eee220-fe29-44e0-b5cf-199884ed311b'
+    storeId: 'APP_358a56d7-94c9-4233-b04a-67c23ec7820e__defaultPersistentObjectStore'
+    partitionId:
+      papvntl1: 'ObjectStore_GITP_PAPVNTL1'
+      papvntl2: 'ObjectStore_GITP_PAPVNTL2'
+      pmpc: 'ObjectStore_GITP_PMPC'
+
 #External System
 sapi:
   resource:
@@ -101,7 +118,7 @@ notification:
 
 #for-each properties
 foreach:
-  batchSize: '15000'
+  batchSize: '20000'
              
 json:
   logger:

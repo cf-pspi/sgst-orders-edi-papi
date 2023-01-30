@@ -54,23 +54,21 @@ output application/json
 }]]]></json-logger:content>
 		</json-logger:logger>
 	</sub-flow>
-	<sub-flow name="sgst-object-store-update-impl-flow" doc:id="436ce630-a49f-47cd-91ef-4e831e069efd" >
+	<sub-flow name="sgst-object-store-create-papvntl1-impl-flow" doc:id="436ce630-a49f-47cd-91ef-4e831e069efd" >
 		<ee:transform doc:name="Prepare Request" doc:id="79fadcc8-0e97-4a8d-89a3-aad625437147" >
 						<ee:message >
-							<ee:set-payload ><![CDATA[%dw 2.0
-output text/plain
----
-payload joinBy "\n"]]></ee:set-payload>
+				<ee:set-payload resource="dwl/setObjectStorePayload.dwl" />
 						</ee:message>
 						<ee:variables >
-							<ee:set-variable variableName="objectStoreKey" ><![CDATA[%dw 2.0
-import * from dw::core::Strings
-output application/java
----
-leftPad(vars.counter,5,0) ++ "_" ++ vars.TransactionID]]></ee:set-variable>
+				<ee:set-variable resource="dwl/setObjectStoreKey.dwl" variableName="objectStoreKey" />
 						</ee:variables>
 					</ee:transform>
-					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="904a810b-ea19-411f-a352-d6d8e3452285" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+					<ee:transform doc:name="Set Request" doc:id="e77f6f51-ae71-4f96-8cda-d50a1640df83" >
+			<ee:message >
+				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="904a810b-ea19-411f-a352-d6d8e3452285" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -87,8 +85,138 @@ output application/json
    "status": Mule::p('api.status.initiate')
 }]]]></json-logger:content>
 		</json-logger:logger>
-		<os:store doc:name="Store" doc:id="f32d840d-ef06-4308-9d9a-be50509732e1" key="#[vars.objectStoreKey]" objectStore="Object_store"/>
+		<http:request method="PUT" doc:name="Request PAPVNTL1 ObjectStore REST API" doc:id="397d2f44-904f-4748-992d-81a073fdd7f8" config-ref="HTTP_Request_ObjectStore_configuration" path="${http.ob.keyValuePath}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"orgId" : "${http.ob.orgId}",
+	"envId": "${http.ob.envId}",
+	"storeId": "${http.ob.storeId}",
+	"partitionId": "${http.ob.partitionId.papvntl1}",
+	"keyId": vars.objectStoreKey
+}]]]></http:uri-params>
+		</http:request>
 		<json-logger:logger doc:name="Log ObjectStore" doc:id="6f7d3618-1c02-4834-9a6a-1f42ae10807c" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.success')
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</sub-flow>
+	<sub-flow name="sgst-object-store-create-papvntl2-impl-flow" doc:id="ab1f5110-e752-4cb6-8d07-9f34f59641e9" >
+		<ee:transform doc:name="Prepare Request" doc:id="bd1d6f28-bf67-49de-9648-0d8f85e7d483" >
+						<ee:message >
+				<ee:set-payload resource="dwl/setObjectStorePayload.dwl" />
+						</ee:message>
+						<ee:variables >
+				<ee:set-variable resource="dwl/setObjectStoreKey.dwl" variableName="objectStoreKey" />
+						</ee:variables>
+					</ee:transform>
+					<ee:transform doc:name="Set Request" doc:id="efcc0421-9d11-423d-8a55-d2e1e24a7e84" >
+			<ee:message >
+				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
+			</ee:message>
+		</ee:transform>
+					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="261d7b1e-db87-4f87-92e1-760dec0aad9d" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.initiate')
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<http:request method="PUT" doc:name="Request PAPVNTL2 ObjectStore REST API" doc:id="dfdfcc6b-a178-4373-9561-46a29549cc39" config-ref="HTTP_Request_ObjectStore_configuration" path="${http.ob.keyValuePath}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"orgId" : "${http.ob.orgId}",
+	"envId": "${http.ob.envId}",
+	"storeId": "${http.ob.storeId}",
+	"partitionId": "${http.ob.partitionId.papvntl2}",
+	"keyId": vars.objectStoreKey
+}]]]></http:uri-params>
+		</http:request>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="c947233a-b6d1-460e-8644-d69679097320" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.success')
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</sub-flow>
+	<sub-flow name="sgst-object-store-create-pmpc-impl-flow" doc:id="5ea8ff8c-2e89-4e43-bf29-48afa0c64257" >
+		<ee:transform doc:name="Prepare Request" doc:id="3e793248-7424-47f6-be19-983657e50900" >
+						<ee:message >
+				<ee:set-payload resource="dwl/setObjectStorePayload.dwl" />
+						</ee:message>
+						<ee:variables >
+				<ee:set-variable resource="dwl/setObjectStoreKey.dwl" variableName="objectStoreKey" />
+						</ee:variables>
+					</ee:transform>
+					<ee:transform doc:name="Set Request" doc:id="ccd3dc78-78e7-440e-8e7c-0d7985f8e25e" >
+			<ee:message >
+				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
+			</ee:message>
+		</ee:transform>
+					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="1d25d440-56ae-4a01-ad71-ba49a50094b8" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": Mule::p('api.flowDirection'),
+   "source": Mule::p('api.source'),
+   "target": vars.fileDetails.externalSystem default "",
+   "fileName": if(vars.fileDetails.flatFileName != null and vars.fileDetails.flatFileExtension != null)(vars.fileDetails.flatFileName as String ++ vars.fileDetails.flatFileExtension as String) else "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.fileDetails.subsidiary,
+   "apiName": Mule::p('json.logger.application.name'),
+   "action": Mule::p('api.action.process'),
+   "status": Mule::p('api.status.initiate')
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<http:request method="PUT" doc:name="Request PMPC ObjectStore REST API" doc:id="99ea0a6d-5104-4275-b62d-7a4b7dadb6d7" config-ref="HTTP_Request_ObjectStore_configuration" path="${http.ob.keyValuePath}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"orgId" : "${http.ob.orgId}",
+	"envId": "${http.ob.envId}",
+	"storeId": "${http.ob.storeId}",
+	"partitionId": "${http.ob.partitionId.pmpc}",
+	"keyId": vars.objectStoreKey
+}]]]></http:uri-params>
+		</http:request>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="59cd86e1-27bd-4649-a8da-1b3503a4a748" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
