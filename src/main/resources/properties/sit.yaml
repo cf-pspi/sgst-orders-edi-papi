@@ -87,9 +87,9 @@ http:
     envId: '62eee220-fe29-44e0-b5cf-199884ed311b'
     storeId: 'APP_358a56d7-94c9-4233-b04a-67c23ec7820e__defaultPersistentObjectStore'
     partitionId:
-      papvntl1: 'ObjectStore_GITP_PAPVNTL1'
-      papvntl2: 'ObjectStore_GITP_PAPVNTL2'
-      pmpc: 'ObjectStore_GITP_PMPC'
+      papvntl1: 'ObjStore_Outbound_GITP_PAPVNTL1'
+      papvntl2: 'ObjStore_Outbound_GITP_PAPVNTL2'
+      pmpc: 'ObjStore_Outbound_GITP_PMPC'
 
 #External System
 sapi:

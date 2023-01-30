@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
 http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
 	<sub-flow name="sgst-orders-papi-impl_decompress-flow" doc:id="b214380a-310b-41d3-85e5-07c105720d48" >
-		<json-logger:logger doc:name="Log Before Decompress" doc:id="1666dd1c-8b6c-4905-9f7d-8ed0d2148ca4" config-ref="JSON_Logger_Config" message="File decompression initiated.">
+		<json-logger:logger doc:name="Log Before Decompress" doc:id="1666dd1c-8b6c-4905-9f7d-8ed0d2148ca4" config-ref="JSON_Logger_Config" message="File decompression initiated." correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -36,7 +36,7 @@ output application/json
 				<compression:zip-decompressor />
 			</compression:decompressor>
 		</compression:decompress>
-		<json-logger:logger doc:name="Log After Decompress" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="AFTER_REQUEST" message='File decompression success.'>
+		<json-logger:logger doc:name="Log After Decompress" doc:id="f52e75fd-f7a7-4fef-994d-2b1dc9305bb5" config-ref="JSON_Logger_Config" tracePoint="AFTER_REQUEST" message='File decompression success.' correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -68,7 +68,7 @@ output application/json
 				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
 			</ee:message>
 		</ee:transform>
-		<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="904a810b-ea19-411f-a352-d6d8e3452285" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+		<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="904a810b-ea19-411f-a352-d6d8e3452285" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated" correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -96,7 +96,7 @@ output application/json
 	"keyId": vars.objectStoreKey
 }]]]></http:uri-params>
 		</http:request>
-		<json-logger:logger doc:name="Log ObjectStore" doc:id="6f7d3618-1c02-4834-9a6a-1f42ae10807c" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="6f7d3618-1c02-4834-9a6a-1f42ae10807c" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]' correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -128,7 +128,7 @@ output application/json
 				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
 			</ee:message>
 		</ee:transform>
-					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="261d7b1e-db87-4f87-92e1-760dec0aad9d" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="261d7b1e-db87-4f87-92e1-760dec0aad9d" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated" correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -156,7 +156,7 @@ output application/json
 	"keyId": vars.objectStoreKey
 }]]]></http:uri-params>
 		</http:request>
-		<json-logger:logger doc:name="Log ObjectStore" doc:id="c947233a-b6d1-460e-8644-d69679097320" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="c947233a-b6d1-460e-8644-d69679097320" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]' correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -188,7 +188,7 @@ output application/json
 				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
 			</ee:message>
 		</ee:transform>
-					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="1d25d440-56ae-4a01-ad71-ba49a50094b8" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated">
+					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="1d25d440-56ae-4a01-ad71-ba49a50094b8" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated" correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -216,7 +216,7 @@ output application/json
 	"keyId": vars.objectStoreKey
 }]]]></http:uri-params>
 		</http:request>
-		<json-logger:logger doc:name="Log ObjectStore" doc:id="59cd86e1-27bd-4649-a8da-1b3503a4a748" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]'>
+		<json-logger:logger doc:name="Log ObjectStore" doc:id="59cd86e1-27bd-4649-a8da-1b3503a4a748" config-ref="JSON_Logger_Config" message='#["Store File in ObjectStore is Successful for ObjectStoreKey: " ++ vars.objectStoreKey]' correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
 ---

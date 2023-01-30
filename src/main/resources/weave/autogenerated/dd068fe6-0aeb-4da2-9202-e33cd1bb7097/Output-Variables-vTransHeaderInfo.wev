@@ -1,9 +1,0 @@
-%dw 2.0
-
-type auto_dd068fe6_0aeb_4da2_9202_e33cd1bb7097_Output_Variables_vTransHeaderInfo = {|
-  ApplicationIdCode: Any, 
-  DataTypeCode: Any, 
-  MessageSequence: Any, 
-  TotalMessageSplits: Any
-|}
-

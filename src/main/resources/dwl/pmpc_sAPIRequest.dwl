@@ -9,7 +9,7 @@ output application/json
   "flatFileName": vars.fileDetails.flatFileName,
   "externalSystem": vars.fileDetails.externalSystem,
   "senderCode": Mule::p('sapi.senderCode.pmpc'),
-  "applicationIdCode": vars.applicationCode,
-  "dataTypeCode": vars.dataTypeCode,
+  "applicationIdCode": vars.transmissionDetails.applicationIdCode,
+  "dataTypeCode": vars.transmissionDetails.dataTypeCode,
   "testType": Mule::p('http.sapi.testType')
 }

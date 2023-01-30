@@ -1,0 +1,111 @@
+#%RAML 1.0 Library
+usage: Library of Traits
+uses:
+  dataTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/datatypes-library/1.0.25/datatypes-library.raml
+  errorResponseLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/errorresponses_library/1.0.6/errorresponses_library.raml
+  
+traits:
+
+  hasClientIdEnforcement:
+    headers:
+      X-Client-ID:
+        type: string
+      X-Client-Secret:
+        type: string
+  hasAcceptEncoding:
+    headers:
+      Accept-Encoding: 
+       example: zip
+       description: Encoding Type of the Request
+  hasContentType:
+    headers:
+      Content-Type: 
+       example: multipart/form-data
+       description: Encoding Type of the Request
+  hasCorrelationID:
+    headers:
+      correlationID:
+        example: "28393680-805f-11ed-a40a-00059a3c7a00"
+        type: string
+        description: The unique ID of the transaction from EAPI
+  hasResponses:
+    responses:
+      200:
+        body:
+          application/json:
+            type: dataTypesLib.SuccessResponse
+      400:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse   
+      401:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse401
+            
+              
+      403:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse403
+              
+      404:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse404
+          
+      500:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse500
+      502:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse502
+      504:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse504
+  hasResponsesWithFile:
+    responses:
+      200:
+        body:
+          application/zip:
+            type: file
+          application/json:
+            type: dataTypesLib.SuccessResponse
+      400:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse
+            
+            
+      401:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse
+            
+      403:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse
+            
+            
+      404:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse
+            
+            
+      500:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse
+      502:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse
+      504:
+        body:
+          application/json:
+            type: dataTypesLib.ErrorResponse

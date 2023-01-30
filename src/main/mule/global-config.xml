@@ -34,7 +34,7 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="db4504d2-4231-4906-875a-1cbdd1f6fe3a" file="properties/${mule.env}.yaml" key="${secret.key}" />
 	<configuration doc:name="Configuration" doc:id="de615457-ca54-4818-8f6e-2e1c8463ad76" defaultErrorHandler-ref="common-exception-handler" />
 	<configuration-properties doc:name="Configuration properties" doc:id="4118f3bf-9aba-42c8-8468-fc9f23e459ff" file="properties\common.yaml" />
-	<os:object-store name="ObjectStore_GITP_PAPVNTL1" doc:name="Object store" doc:id="f3447a8a-42bf-409c-8b05-9cf22cb91903" />
+	<os:object-store name="ObjStore_Outbound_GITP_PAPVNTL1" doc:name="Object store" doc:id="f3447a8a-42bf-409c-8b05-9cf22cb91903" />
 	<os:object-store name="Object_Store_PAPVNTL1" doc:name="Object store" doc:id="84c499d0-aa83-4b6a-a8bd-bba93f9d0dc3" config-ref="ObjectStore_Config"/>
 	<os:object-store name="Object_Store_PAPVNTL2" doc:name="Object store" doc:id="6c5ad9ae-4b15-42f1-b9cf-43e768aeae46" config-ref="ObjectStore_Config"/>
 	<os:object-store name="Object_Store_PMPC" doc:name="Object store" doc:id="38c9e77c-c3f3-481a-add9-60256553c43a" config-ref="ObjectStore_Config"/>
@@ -121,8 +121,8 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 		<sftp:connection host="${sftp.common.host}" port="${sftp.common.port}" username="${sftp.common.username}" password="${secure::sftp.common.password}"/>
 	</sftp:config>
 	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="ec612321-e184-4323-ba58-d96b874697a4" />
-	<os:object-store name="ObjectStore_GITP_PAPVNTL2" doc:name="Object store" doc:id="1e2097cb-b35f-469a-a76a-ccc0376b400f" />
-	<os:object-store name="ObjectStore_GITP_PMPC" doc:name="Object store" doc:id="4846b67d-94da-4787-b531-54ae04131253" />
+	<os:object-store name="ObjStore_Outbound_GITP_PAPVNTL2" doc:name="Object store" doc:id="1e2097cb-b35f-469a-a76a-ccc0376b400f" />
+	<os:object-store name="ObjStore_Outbound_GITP_PMPC" doc:name="Object store" doc:id="4846b67d-94da-4787-b531-54ae04131253" />
 	<error-handler name="common-exception-handler" doc:id="620168ea-5f75-4860-b6e0-5ffeaf5d7084" >
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="254b4aa3-f7dd-49ab-8917-36be80077c18" type="COMPRESSION:COULD_NOT_DECOMPRESS, COMPRESSION:INVALID_ARCHIVE, COMPRESSION:TOO_MANY_ENTRIES" >
 			<flow-ref doc:name="global-config-propagate-error" doc:id="871c9151-febb-41d7-a0cf-81c2fc97968e" name="global-config-propagate-error"/>
@@ -188,7 +188,7 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 			</ee:variables>
 			
 </ee:transform>
-		<json-logger:logger doc:name="Logger" doc:id="59e86344-48ca-4c80-84e1-530e9945954e" config-ref="JSON_Logger_Config" message='#["Exception occurred processing the transaction for correlation Id " ++ vars.TransactionID]' tracePoint="EXCEPTION" priority="ERROR">
+		<json-logger:logger doc:name="Logger" doc:id="59e86344-48ca-4c80-84e1-530e9945954e" config-ref="JSON_Logger_Config" message='#["Exception occurred processing the transaction for correlation Id " ++ vars.TransactionID]' tracePoint="EXCEPTION" priority="ERROR" correlationId="#[vars.TransactionId]">
 		</json-logger:logger>
 	
 </sub-flow>

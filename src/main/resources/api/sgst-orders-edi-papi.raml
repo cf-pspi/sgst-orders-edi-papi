@@ -4,28 +4,38 @@ version: 1.0
 description: Process API to handle the material management operations
 
 uses:
-  resourceTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/resource-types-library/1.0.7/library-resource-types.raml
+  resourceTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/resource-types-library/1.0.12/library-resource-types.raml
+  traitsLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/traits-library/1.0.35/traits-library.raml
+  dataTypesLib: exchange_modules/69195e0c-f771-4438-a4b2-58237c4947b6/datatypes-library/1.0.25/datatypes-library.raml
 
 /purchase-orders:
   displayName: purchase orders
   description: resource is used for accepting the Purchase Orders file from SAP and sending it to EPRO and IPS
   post:
-  type: resourceTypesLib.edifile_collection
+  type: resourceTypesLib.edifile_sap_gitp_collection
+  is:
+    - traitsLib.hasResponses
 
 /purchase-results:
   displayName: purchase results
   description: resource is used for accepting the Purchase Results file from SAP and sending it to ECITA
   post:
-  type: resourceTypesLib.edifile_collection
+  type: resourceTypesLib.edifile_sap_gitp_collection
+  is:
+    - traitsLib.hasResponses
 
 /fpl:
   displayName: fpl data
   description: resource is used for accepting the FPL file from SAP and sending it to Sales EDI
   post:
-  type: resourceTypesLib.edifile_collection
+  type: resourceTypesLib.edifile_sap_gitp_collection
+  is:
+    - traitsLib.hasResponses
 
 /ar-statements:
   displayName: ar statements
   description: resource is used for accepting the AR Statement file from SAP and sending it to CMS
   post:
-  type: resourceTypesLib.edifile_collection
+  type: resourceTypesLib.edifile_sap_gitp_collection
+  is:
+    - traitsLib.hasResponses

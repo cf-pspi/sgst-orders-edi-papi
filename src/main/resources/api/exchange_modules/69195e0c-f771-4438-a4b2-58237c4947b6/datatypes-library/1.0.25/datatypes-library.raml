@@ -1,0 +1,20 @@
+#%RAML 1.0 Library
+usage: Library of Datatypes
+types:
+  ErrorResponse: !include dataTypes/dataType-edi-error-response.raml
+  ErrorResponse401: !include dataTypes/dataType-edi-error-response401.raml
+  ErrorResponse403: !include dataTypes/dataType-edi-error-response403.raml
+  ErrorResponse404: !include dataTypes/dataType-edi-error-response404.raml
+  ErrorResponse500: !include dataTypes/dataType-edi-error-response500.raml
+  ErrorResponse502: !include dataTypes/dataType-edi-error-response502.raml
+  ErrorResponse504: !include dataTypes/dataType-edi-error-response504.raml
+  SuccessResponse: !include dataTypes/dataType-edi-success-response.raml
+  EdiFile: !include dataTypes/datatype-edi-file-request.raml
+  
+  EdiFileSapi: !include dataTypes/datatype-edi-file-sapi-request.raml
+  TransmissionMsgheader: !include dataTypes/datatype-transmission-msg-header.raml
+  BarCodeError: !include dataTypes/dataType-processing-error-request.raml
+
+  InvoiceBody: !include dataTypes/dataType-einvoice-body.raml
+  SuccessResponseInvoice: !include dataTypes/dataType-einvoice-success-response.raml
+  GITPMessage: !include dataTypes/dataType-gitp-message-request.raml

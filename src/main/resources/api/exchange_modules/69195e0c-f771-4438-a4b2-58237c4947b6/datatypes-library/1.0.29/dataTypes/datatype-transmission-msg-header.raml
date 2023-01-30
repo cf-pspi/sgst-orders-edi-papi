@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+properties:
+  applicationIdCode:
+    description: code to specify the status of publishing file in external system
+    example: "03"
+    type: string
+    required: true
+  dataTypeCode:
+    description: The message returned to speciy the status
+    type: string
+    example: "ARG"
+    required: true
+  testType:
+    description: The Correlation ID of the request
+    type: string
+    example: "T"
+    required: false
+  receiverCode:
+    description: The Correlation ID of the request
+    type: string
+    example: "00029472"
+    required: false
+  senderCode:
+    description: The Correlation ID of the request
+    type: string
+    example: "000101"
+    required: false
+  

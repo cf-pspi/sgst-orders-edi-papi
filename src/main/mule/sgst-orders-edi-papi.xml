@@ -44,8 +44,8 @@ uuid()]]></ee:set-variable>
         <error-handler ref="common-exception-handler" />
     </flow>
     <flow name="post:\purchase-orders:multipart\form-data:sgst-orders-edi-papi-config">
-		<flow-ref doc:name="sgst-impl-sub-flow" doc:id="6fd9bd7e-72f7-4b3b-b8c1-7c14577e84a3" name="sgst-impl-sub-flow"/>
-		<error-handler ref="common-exception-handler" />
+        <flow-ref doc:name="sgst-impl-sub-flow" doc:id="6fd9bd7e-72f7-4b3b-b8c1-7c14577e84a3" name="sgst-impl-sub-flow" />
+        <error-handler ref="common-exception-handler" />
     </flow>
     <flow name="post:\purchase-results:multipart\form-data:sgst-orders-edi-papi-config">
         <flow-ref doc:name="sgst-impl-sub-flow" doc:id="ef038856-4876-4f04-963e-625388786ca4" name="sgst-impl-sub-flow" />

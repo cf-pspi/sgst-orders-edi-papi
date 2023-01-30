@@ -1,0 +1,88 @@
+#%RAML 1.0 DataType
+    properties:
+      transactionId:
+        type: string
+        required: true
+        example: "62af3fbd-f0f6-4f28-9986-f201f5b76d5c"
+      subsidiary:
+        enum:
+            - PAPVN-TL1
+            - PAPVN-TL2
+            - PMPC
+        type: string
+        required: false
+        example: PMPC
+        description: The subsidiaries within SGST division
+      externalSystem:
+        enum: 
+          - ICAST
+          - RATIONALIZATION
+          - ECITA
+          - NEO_PM
+          - SCM_NAVI
+          - EPRO
+          - IPS
+          - PBS
+          - CMS
+          - E_INVOICE
+          - SALES_EDI
+        description: The name of the external system, to publish the file in
+        type: string
+        required: false
+        example: ICAST
+      flatFileName:
+        type: string
+        required: false
+        example: FileName
+        description: The name of the file to publish in external system
+      flatFileFormat:
+        enum:
+            - CSV
+            - TAB_DELIMITED
+            - FIXED_WIDTH
+        type: string
+        required: false
+        example: CSV
+        description: The format of the flat file to publish in external system
+      flatFileExtension:
+        type: string
+        required: false
+        example: .dat
+        description: The extension of the falt file to publish in external system
+      applicationIdCode:
+        type: string
+        required: false
+        example: "03"
+        description: The applicationIdCode of the receiver
+      dataTypeCode:
+        type: string
+        required: false
+        description: The dataTypeCode of the sender/receiver of GITP
+      testType:
+        type: string
+        required: false
+        example: "T"
+        description: This field defines the scope of testing
+      receiverCode:
+        type: string
+        required: false
+        description: Receiver Code
+      senderCode:
+        type: string
+        required: false
+        description: Sender Code
+      continuationType:
+        type: string
+        required: false
+        example: "0"
+        description: This field defines the continuation of next page
+      totalMessageSplits:
+        type: string
+        required: false
+        example: "005"
+        description: Total number of transmission blocks when splitting message
+      messageSequenceNumber:
+        type: string
+        required: false
+        example: "04"
+        description: Order of transmission blocks

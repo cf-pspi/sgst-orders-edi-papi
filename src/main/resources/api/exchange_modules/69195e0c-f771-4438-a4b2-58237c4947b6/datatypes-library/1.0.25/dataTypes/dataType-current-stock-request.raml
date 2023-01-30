@@ -1,0 +1,38 @@
+#%RAML 1.0 DataType
+properties: 
+  OneRoofRequest:
+    type: object
+    xml:
+      name: OneRoofRequest
+      namespace: pana
+    properties: 
+      DTS:
+        type: string
+      TypeOfData:
+        type: string
+        
+      ReportRequestID:
+        type: string  
+
+      NSCcode:
+        type: array
+        items: string
+
+      NSCStorLocCode:
+        type: array
+        items: string
+
+      NSCMaterialNumber:
+          type: array
+          items: string
+      MfgCode:
+        type: string
+
+      MfgStorLocCode:
+          type: array
+          items: string
+      MfgMaterialNumber:
+        type: array
+        items: string
+
+              

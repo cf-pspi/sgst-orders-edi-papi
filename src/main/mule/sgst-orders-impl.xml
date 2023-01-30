@@ -24,6 +24,11 @@ payload.parts.'File'.content]]></ee:set-payload>
 output application/java
 ---
 attributes.maskedRequestPath]]></ee:set-variable>
+				<ee:set-variable variableName="EDITransmissionHeader" ><![CDATA[%dw 2.0
+output application/java
+input payload multipart/form-data
+---
+payload.parts.'TransmissionHeader'.content]]></ee:set-variable>
 			
 </ee:variables>
 		</ee:transform>
@@ -31,6 +36,10 @@ attributes.maskedRequestPath]]></ee:set-variable>
 			<ee:message />
 			<ee:variables>
 				<ee:set-variable resource="dwl/fileDetails.dwl" variableName="fileDetails" />
+				<ee:set-variable variableName="transmissionDetails" ><![CDATA[%dw 2.0
+output application/json
+---
+read(vars.EDITransmissionHeader,"application/json")]]></ee:set-variable>
 			
 </ee:variables>
 		</ee:transform>
@@ -38,8 +47,6 @@ attributes.maskedRequestPath]]></ee:set-variable>
 			<ee:message >
 			</ee:message>
 			<ee:variables >
-				<ee:set-variable resource="dwl/applicationCode.dwl" variableName="applicationCode" />
-				<ee:set-variable resource="dwl/dataTypeCode.dwl" variableName="dataTypeCode" />
 				<ee:set-variable resource="dwl/resourcePath.dwl" variableName="resourcePath" />
 				<ee:set-variable resource="dwl/eventAuditMessage.dwl" variableName="eventAuditMessage" />
 			</ee:variables>
