@@ -56,6 +56,16 @@ routing:
     sd: ['SALES_EDI']
     fi: ['CMS']
 
+#Routing Record Length
+sap:
+  outbound:
+    trim.length:
+        epro: "450"
+        ips: "450"
+        ecita: "450"
+        salesEDI: "310"
+        cms: "300"
+
 #SAPI Header Properties
 sapi:
   senderCode: 

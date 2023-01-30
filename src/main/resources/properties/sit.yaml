@@ -118,7 +118,7 @@ notification:
 
 #for-each properties
 foreach:
-  batchSize: '20000'
+  batchSize: '15000'
              
 json:
   logger:
