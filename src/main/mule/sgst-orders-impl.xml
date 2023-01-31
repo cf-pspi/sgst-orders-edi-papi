@@ -114,7 +114,7 @@ output application/json
 {
 	"Content-Type" : "application/json",
 	"X-Client-ID" : "${http.papvntl1.sapi.client_id}",
-	"X-Client-Secret": "${http.papvntl1.sapi.client_secret}"
+	"X-Client-Secret": "${secure::http.papvntl1.sapi.client_secret}"
 }]]]></http:headers>
 				</http:request>
 				<json-logger:logger doc:name="Log After SAPI Request" doc:id="85fa7f84-6817-4d22-8e41-ad4f59dc521a" config-ref="JSON_Logger_Config" message='Call to SAPI PAPVNTL1 is completed Successfully' tracePoint="AFTER_REQUEST" correlationId="#[vars.TransactionId]">
@@ -169,7 +169,7 @@ output application/json
 {
 	"Content-Type" : "application/json",
 	"X-Client-ID" : "${http.papvntl2.sapi.client_id}",
-	"X-Client-Secret": "${http.papvntl2.sapi.client_secret}"
+	"X-Client-Secret": "${secure::http.papvntl2.sapi.client_secret}"
 }]]]></http:headers>
 				</http:request>
 				<json-logger:logger doc:name="Log After SAPI Request" doc:id="906feda2-16a2-4183-98fe-ea3b124bcca0" config-ref="JSON_Logger_Config" message='Call to SAPI PAPVNTL2 is completed Successfully' tracePoint="AFTER_REQUEST" correlationId="#[vars.TransactionId]">
@@ -224,7 +224,7 @@ output application/json
 {
 	"Content-Type" : "application/json",
 	"X-Client-ID" : "${http.pmpc.sapi.client_id}",
-	"X-Client-Secret": "${http.pmpc.sapi.client_secret}"
+	"X-Client-Secret": "${secure::http.pmpc.sapi.client_secret}"
 }]]]></http:headers>
 				</http:request>
 				<json-logger:logger doc:name="Log After SAPI Request" doc:id="1b28d371-b128-4dd3-9cad-b98b8568078f" config-ref="JSON_Logger_Config" message='Call to SAPI PMPC is completed Successfully' tracePoint="AFTER_REQUEST" correlationId="#[vars.TransactionId]">

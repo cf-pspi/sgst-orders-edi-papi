@@ -63,11 +63,6 @@ output application/json
 				<ee:set-variable resource="dwl/setObjectStoreKey.dwl" variableName="objectStoreKey" />
 						</ee:variables>
 					</ee:transform>
-					<ee:transform doc:name="Set Request" doc:id="e77f6f51-ae71-4f96-8cda-d50a1640df83" >
-			<ee:message >
-				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
-			</ee:message>
-		</ee:transform>
 		<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="904a810b-ea19-411f-a352-d6d8e3452285" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated" correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
@@ -86,6 +81,15 @@ output application/json
 }]]]></json-logger:content>
 		</json-logger:logger>
 		<http:request method="PUT" doc:name="Request PAPVNTL1 ObjectStore REST API" doc:id="397d2f44-904f-4748-992d-81a073fdd7f8" config-ref="HTTP_Request_ObjectStore_configuration" path="${http.ob.keyValuePath}">
+			<http:body ><![CDATA[#[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+    "binaryValue":toBase64(payload),
+    "keyId": vars.objectStoreKey,
+    "valueType": "BINARY"
+}]]]></http:body>
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
@@ -123,11 +127,6 @@ output application/json
 				<ee:set-variable resource="dwl/setObjectStoreKey.dwl" variableName="objectStoreKey" />
 						</ee:variables>
 					</ee:transform>
-					<ee:transform doc:name="Set Request" doc:id="efcc0421-9d11-423d-8a55-d2e1e24a7e84" >
-			<ee:message >
-				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
-			</ee:message>
-		</ee:transform>
 					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="261d7b1e-db87-4f87-92e1-760dec0aad9d" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated" correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
@@ -146,6 +145,15 @@ output application/json
 }]]]></json-logger:content>
 		</json-logger:logger>
 		<http:request method="PUT" doc:name="Request PAPVNTL2 ObjectStore REST API" doc:id="dfdfcc6b-a178-4373-9561-46a29549cc39" config-ref="HTTP_Request_ObjectStore_configuration" path="${http.ob.keyValuePath}">
+			<http:body ><![CDATA[#[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+    "binaryValue":toBase64(payload),
+    "keyId": vars.objectStoreKey,
+    "valueType": "BINARY"
+}]]]></http:body>
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
@@ -183,11 +191,6 @@ output application/json
 				<ee:set-variable resource="dwl/setObjectStoreKey.dwl" variableName="objectStoreKey" />
 						</ee:variables>
 					</ee:transform>
-					<ee:transform doc:name="Set Request" doc:id="ccd3dc78-78e7-440e-8e7c-0d7985f8e25e" >
-			<ee:message >
-				<ee:set-payload resource="dwl/objectStoreRequest.dwl" />
-			</ee:message>
-		</ee:transform>
 					<json-logger:logger doc:name="Log Before ObjectStore V2" doc:id="1d25d440-56ae-4a01-ad71-ba49a50094b8" config-ref="JSON_Logger_Config" message="Store File in Object Store V2 Initiated" correlationId="#[vars.TransactionId]">
 			<json-logger:content ><![CDATA[#[%dw 2.0
 output application/json
@@ -206,6 +209,15 @@ output application/json
 }]]]></json-logger:content>
 		</json-logger:logger>
 		<http:request method="PUT" doc:name="Request PMPC ObjectStore REST API" doc:id="99ea0a6d-5104-4275-b62d-7a4b7dadb6d7" config-ref="HTTP_Request_ObjectStore_configuration" path="${http.ob.keyValuePath}">
+			<http:body ><![CDATA[#[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+    "binaryValue":toBase64(payload),
+    "keyId": vars.objectStoreKey,
+    "valueType": "BINARY"
+}]]]></http:body>
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {

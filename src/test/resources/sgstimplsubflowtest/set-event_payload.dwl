@@ -9,6 +9,15 @@
       },
       "content": "eyAic3Vic2lkaWFyeSI6ICJQQVBWTi1UTDEiLCAiZmxhdEZpbGVOYW1lIjogInNhbXBsZSIsICJmbGF0RmlsZUZvcm1hdCI6ICJGSVhFRF9XSURUSCIsImV4dGVybmFsU3lzdGVtIjogIkVDSVRBIiwiZmxhdEZpbGVFeHRlbnNpb24iOiAiLmRhdCJ9" as Binary {base: "64"}
     },
+    "TransmissionHeader": {
+      "headers": {
+        "Content-Disposition": {
+          "name": "TransmissionHeader",
+          "subtype": "form-data"
+        }
+      },
+      "content": "eyAiYXBwbGljYXRpb25JZENvZGUiOiAiMDMiLCAiZGF0YVR5cGVDb2RlIjogIkFSMiJ9" as Binary {base: "64"}
+    },
     "File": {
       "headers": {
         "Content-Disposition": {

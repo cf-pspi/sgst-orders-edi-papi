@@ -5,7 +5,7 @@ mule:
 #API Manager config
 api:
   autodiscovery:
-    id: ''
+    id: '18460228'
   flowDirection: 'outbound'
   source: 'EAPI'
 
@@ -13,9 +13,9 @@ api:
 http:              
   papvntl1:    
     sapi:
-      client_id: ''
-      client_secret: ''
-      host: 'sgst-papvntl1-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      client_id: '9216ac21e84f4c2e863ae091b25d47b4'
+      client_secret: '![Snwrh5i+vIO3rt6OgWQdT3/97r6XEO5SVmXdoUCAODfYezGYuumXZwneYN6AjeiF]'
+      host: 'sgst-papvntl1-gitp-sapi-sit-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'         
       basepath: '/api/v1'
       purchaseOrdersPath: '/purchase-orders'
@@ -25,9 +25,9 @@ http:
            
   papvntl2:    
     sapi:
-      client_id: ''
-      client_secret: ''
-      host: 'sgst-papvntl2-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      client_id: '36a90530112f43779f135c0e44ee3089'
+      client_secret: '![STMn6t7kn16wCj7PtRABrgAOZyuMBS65n7Rer4kRk6ujPUQW+O4+2FoRfbQFzUzt]'
+      host: 'sgst-papvntl2-gitp-sapi-sit-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
       basepath: '/api/v1'
       purchaseOrdersPath: '/purchase-orders'
@@ -37,9 +37,9 @@ http:
           
   pmpc:    
     sapi:
-      client_id: 'cb6fea3d3d814a43a7042b301698194d'
-      client_secret: '671B051dA51146B8A6eA36490C1B2F05'
-      host: 'sgst-pmpc-gitp-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      client_id: '0b7d298baf584f68a2842d63f4e39a11'
+      client_secret: '![KfFIclQYIGF3eSnwW/f+hbJi79rjG0vHfEuxjTqbLf8oauOU624866d+rImZeyHq]'
+      host: 'sgst-pmpc-gitp-sapi-sit-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
       basepath: '/api'
       purchaseOrdersPath: '/purchase-orders'
@@ -50,7 +50,7 @@ http:
   keystore:
     path: 'keystores/${mule.env}-keystore.jks'
     alias: 'servercert'
-    password: 'winter@123'   
+    password: '![jZ9aFIvsIbzo/rVxKqDOdQ==]'   
 
   utilities:    
     papi:
@@ -77,7 +77,7 @@ http:
   ob:
     tokenURL: 'https://anypoint.mulesoft.com/accounts/oauth2/token'
     client_id: 'ADAM_INTEGRATIONS_358a56d7-94c9-4233-b04a-67c23ec7820e'
-    client_secret: 'B9E634C412344aA282E950E9Fc814856'
+    client_secret: '![b9WQfS8Ea4oVruvJMcFflNLMKX0VaSQTVPP7EfcR3Ya39tVzWBH4+EFlV71nRJut]'
     host: 'object-store-ap-southeast-1.anypoint.mulesoft.com'
     port: '443'
     basePath: '/api/v1'
