@@ -8,21 +8,7 @@
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
 	<munit:config name="sgst-orders-edi-papi-inbound-impl-test-suite.xml" />
-	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flowTest" doc:id="2e102764-0efa-4af3-bcc6-8d7b4f568476" description="Test">
-		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock Store" doc:id="5e972c91-deb1-479a-89a3-793f240ffb31" processor="os:store">
-				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="Store Split File" attributeName="doc:name" />
-				</munit-tools:with-attributes>
-			</munit-tools:mock-when>
-		</munit:behavior>
-		<munit:execution >
-			<munit:set-event doc:name="Set Event" doc:id="c4d97f0c-0120-4939-9cb5-4d82ff68ff32" >
-				<munit:payload value="#[output application/json --- readUrl('classpath://inbound\TransactionHeaderInformationResponse.json')]" encoding="UTF-8" mediaType="application/json" />
-			</munit:set-event>
-			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flow" doc:id="5e633c91-5ad8-41c3-8080-de2dfe2d6b70" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flow"/>
-		</munit:execution>
-	</munit:test>
+	
 	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flowTest" doc:id="b158633b-b843-419f-86ea-3063e2b80faa" description="Test">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock OS Retrieve" doc:id="df8761b3-1f97-4520-853c-51024bde087a" processor="os:retrieve-all-keys">
@@ -33,7 +19,7 @@
 					<munit-tools:payload value="#[output application/json --- readUrl('classpath://inbound\papvn-tl1-os-keys.json')]" mediaType="application/json" encoding="UTF-8" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mock when" doc:id="8940b457-e23a-4342-9924-b868640d1c4d" processor="os:retrieve">
+			<munit-tools:mock-when doc:name="Mock Get OS" doc:id="8940b457-e23a-4342-9924-b868640d1c4d" processor="os:retrieve">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="Get File from OS" attributeName="doc:name" />
 				</munit-tools:with-attributes>
@@ -48,6 +34,11 @@
 					<munit-tools:with-attribute whereValue="SAP POST Request" attributeName="doc:name" />
 				</munit-tools:with-attributes>
 			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock OS" doc:id="fa565e20-e86e-4fd8-918e-240587bc0dbd" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Split File from ObjectStore" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
 			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flow" doc:id="99466fdf-5bb2-4c17-bfa2-10bc26a7b382" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flow"/>
@@ -60,50 +51,43 @@
 			</munit-tools:verify-call>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flowTest" doc:id="52b91777-b5d4-49ff-99e7-3efd470b6f86" description="Test">
+	
+	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-invalid-flowTest" doc:id="bcd1e980-77bf-4808-9345-916c7d01f43c" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock when" doc:id="29030adb-63a7-4a1d-8078-b85c2f785ce5" processor="os:store">
+			<munit-tools:mock-when doc:name="Mock OS Retrieve" doc:id="84884d51-3842-4c4c-9e2b-387933c1de18" processor="os:retrieve-all-keys">
 				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="Store Split File" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Retrieve all keys" attributeName="doc:name" />
 				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://inbound\papvn-tl2-os-keys.json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock SFTP" doc:id="c43f5655-6ccf-47e2-a438-eb6010929600" processor="sftp:write">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Write Output File" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock OS" doc:id="d67b190f-0e58-47df-aa7c-bfe8aad54820" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Old File" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+
 			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
-			<munit:set-event doc:name="Set Event" doc:id="17a29aea-e9ca-45ff-b90e-0e9dd00fd6ac" >
-				<munit:payload value="#[output application/json --- readUrl('classpath://inbound\TransactionHeaderInformationResponse.json')]" mediaType="application/json" />
-			</munit:set-event>
-			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flow" doc:id="4472d85e-c257-4779-bdcb-53a76fc5799c" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flow"/>
+			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flow" doc:id="191fc3e1-0cf9-4418-bfbb-1276d1c6dd37" name="sgst-orders-edi-papi-inbound-PAPVN-TL1-scheduler-impl-flow"/>
 		</munit:execution>
 		<munit:validation >
-			<munit-tools:verify-call doc:name="Verify call" doc:id="7effecfc-d43b-4615-baeb-73fad40f845c" processor="json-logger:logger">
+			<munit-tools:verify-call doc:name="Verify call" doc:id="40d3822d-20a5-4a04-9000-19657f15b5c9" processor="json-logger:logger">
 				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="Exit Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Log - End Event" attributeName="doc:name" />
 				</munit-tools:with-attributes>
+
 			</munit-tools:verify-call>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flowTest" doc:id="f43b6333-5bfa-4543-9776-30d81cf52456" description="Test">
-		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock when" doc:id="846d9862-4831-4b1f-ad41-cde413ba2632" processor="os:store">
-				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="Store Split File" attributeName="doc:name" />
-				</munit-tools:with-attributes>
-			</munit-tools:mock-when>
-		</munit:behavior>
-		<munit:execution >
-			<munit:set-event doc:name="Set Event" doc:id="06516b23-c545-4162-9e15-1a83c47569f6" >
-				<munit:payload value="#[output application/json --- readUrl('classpath://inbound\TransactionHeaderInformationResponse.json')]" mediaType="application/json" />
-			</munit:set-event>
-			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flow" doc:id="f93c0865-d140-4b6b-ba13-99900c597395" name="sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flow"/>
-		</munit:execution>
-		<munit:validation >
-			<munit-tools:verify-call doc:name="Verify call" doc:id="85b9d176-745f-45c5-8d10-daaad9f53a79" processor="json-logger:logger">
-				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="Exit Logger" attributeName="doc:name" />
-				</munit-tools:with-attributes>
-			</munit-tools:verify-call>
-		</munit:validation>
-	</munit:test>
+	
 	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flowTest" doc:id="3a462d34-2fac-4cb6-a4da-cab5c0a689c2" description="Test">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="0388f84c-96ba-4002-a6cd-b483d00e981b" processor="os:retrieve-all-keys">
@@ -129,6 +113,11 @@
 					<munit-tools:with-attribute whereValue="SAP POST Request" attributeName="doc:name" />
 				</munit-tools:with-attributes>
 			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="caf47314-6634-4329-b84f-3ef1381ddcb8" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Split File from ObjectStore" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
 			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow" doc:id="2be2788c-0c3a-43e0-8906-1a8e88ee2ce9" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow"/>
@@ -141,6 +130,43 @@
 			</munit-tools:verify-call>
 		</munit:validation>
 	</munit:test>
+	
+	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-invalid-impl-flowTest" doc:id="48489dc1-09b7-4e45-9c04-bdfed2f54d82" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="d469ba77-52e4-43c7-8570-5ea6383cd4d2" processor="os:retrieve-all-keys">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Retrieve all keys" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://inbound\papvn-tl2-os-keys.json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="032e9bfa-6069-476c-831c-ec2a5a84a713" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Old File" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="03baed83-a379-491b-a710-ab7d04bb8971" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Split File from ObjectStore" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow" doc:id="6bf84731-3f26-4992-a163-18d35e927c9b" name="sgst-orders-edi-papi-inbound-PAPVN-TL2-scheduler-impl-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="a3a8932a-4356-482c-aedc-d9454799249c" processor="json-logger:logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Log - End Event" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
 	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flowTest" doc:id="df2e37e5-6efc-45d3-8b76-0218d2d9dc22" description="Test">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="7eb8b231-8b49-4a82-a14c-a26785a0d33c" processor="os:retrieve-all-keys">
@@ -163,7 +189,12 @@
 			</munit-tools:mock-when>
 			<munit-tools:mock-when doc:name="Mock when" doc:id="567c1818-2077-47fa-ba4f-91b2ef87317e" processor="http:request">
 				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="SAP POST Call" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="SAP POST Request" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="9b5f5223-ab67-4966-ae4a-8e3b5c72b228" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Split Files from OS" attributeName="doc:name" />
 				</munit-tools:with-attributes>
 			</munit-tools:mock-when>
 		</munit:behavior>
@@ -171,9 +202,39 @@
 			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow" doc:id="04b014fe-e70e-4d26-84de-a5bc46faf033" name="sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow"/>
 		</munit:execution>
 		<munit:validation >
-			<munit-tools:verify-call doc:name="Verify call" doc:id="e968f680-49c8-4d7b-9231-6ea3806c96f9" processor="http:request">
+			<munit-tools:verify-call doc:name="Verify call" doc:id="e968f680-49c8-4d7b-9231-6ea3806c96f9" processor="json-logger:logger">
 				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="SAP POST Call" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Log - End Event" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-invalid-flowTest" doc:id="339064e1-4c97-485b-9c37-ab37c8ef9aae" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="3936ae66-1756-47ac-9ea3-798fb711048b" processor="os:retrieve-all-keys">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Retrieve all keys" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://inbound\papvn-tl2-os-keys.json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="bd6687a8-0776-4877-8fec-6e9fefb9135f" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove Old File" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow" doc:id="0871f267-7af9-4b23-8d46-5eacddd036b8" name="sgst-orders-edi-papi-inbound-PMPC-scheduler-impl-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="a5818b92-c639-449b-985e-113092347b90" processor="json-logger:logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Log - End Event" attributeName="doc:name" />
 				</munit-tools:with-attributes>
 			</munit-tools:verify-call>
 		</munit:validation>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:compression="http://www.mulesoft.org/schema/mule/compression"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<sub-flow name="sgst-orders-edi-papi-inbound-common-sap-impl-sub-flow" doc:id="c8255642-c27f-4136-84a4-1da713a234b8" >
+		<ee:transform doc:name="Prepare Request" doc:id="3492fadb-c893-4d21-a261-f25ae0874c67">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output multipart/form-data
+---
+{
+	parts: {
+		EDIMsgHeader: {
+			headers: {
+				"Content-Type": "application/json"
+			},
+			content: {
+				"subsidiary": vars.vSubsidiary,
+				"flatFileName": vars.vOutputFileName,
+				"flatFileFormat": "FIXED_WIDTH",
+				"externalSystem": vars.vExternalSystem,
+				"flatFileExtension": ".zip"
+			}
+		}
+	}
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		<json-logger:logger doc:name="Log Before SAPI Request" doc:id="7fc2cd93-f4f2-44b2-97b9-75f3a190e204" config-ref="JSON_Logger_Config" message="Initiate call to SAPI">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.vSubsidiary,
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "START"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<choice doc:name="Choice" doc:id="552b65f8-5ba9-4d06-b030-327cfc68d06e" >
+			<when expression='#[vars.resourcePath != "InvalidExternalSystem"]'>
+				<try doc:name="Try" doc:id="63fde542-18a1-4570-bd45-a1cc5c331456" >
+					<http:request method="POST" doc:name="SAP POST Request" doc:id="3dd21f53-afee-4888-a98c-1c491d0bd376" config-ref="HTTP_EDIFILE_SAP_Request_Configuration" path="#[vars.resourcePath]" outputMimeType="multipart/form-data">
+							<http:headers><![CDATA[#[output application/java
+---
+{
+	"correlationID" : vars.TransactionID,
+	"X-Client-ID" : "${http.edifile.sapi.client_id}",
+	"X-Client-Secret": "${http.edifile.sapi.client_secret}"
+}]]]></http:headers>
+			</http:request>
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="62a9b2ad-6710-4aad-a5ab-70e46b7e7660" >
+<!-- [STUDIO:"Read Output File"]							<sftp:read doc:name="Read Output File" doc:id="30e1b7e5-403a-41d2-8c26-f695c0d85c31" config-ref="SFTP_Config_Common_Storage" path='#["/inbound/papvn-tl2/output/" ++ vars.vOutputFileName]'/> [STUDIO] -->
+							<compression:compress doc:name="Compress" doc:id="a77c7137-d252-4cee-a465-fa985b246af8" >
+								<compression:compressor >
+									<compression:zip-compressor />
+								</compression:compressor>
+							</compression:compress>
+							<logger level="INFO" doc:name="Send an Email with ZIP file" doc:id="45a83f3c-f96c-4137-9e54-e80ffa602a15" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set Error Response" doc:id="f45da278-390a-4e03-905b-551a67f3c260" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 500,
+	errorMessage: "The provided external system: " ++ vars.vExternalSystem ++ " is invalid for " ++ vars.vDataInterface,
+	errorType: 'DATA ERROR',
+	correlationID: vars.TransactionID,
+	timestamp: now()
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<json-logger:logger doc:name="Log After SAPI Request" doc:id="ac1c40c1-1a6d-431c-86db-1f37fe051dbf" config-ref="JSON_Logger_Config" message="File published successfully to SAP">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "Scheduler",
+   "target": vars.vExternalSystem default "",
+   "fileName":  vars.vOutputFileName ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": vars.vSubsidiary,
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL SAPI",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</sub-flow>
+</mule>

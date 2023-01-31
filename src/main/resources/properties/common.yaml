@@ -83,18 +83,6 @@ sapi:
     fpl: 'P14'
     arStatements: '05GALAXY'
     
-gitp.header:
-  inbound:
-    applicationCode:
-      poResponse: '03'
-      ediResults: '03'
-      salesOrder: '03'
-      arStatements: '05'
-    dataTypeCode:
-      poResponse: ["AR0","AR1","AR2","AR3","AR4","AR5","AR6","ARG","ARI","ART","ARU","ARV","ARW"]
-      ediResults: ["ARO","ARZ"]
-      salesOrder: ["314","331","391"]
-      arStatements: 'GALAXY'
 
 #Error Configurations
 

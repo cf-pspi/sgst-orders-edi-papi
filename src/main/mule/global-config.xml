@@ -35,9 +35,9 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 	<configuration doc:name="Configuration" doc:id="de615457-ca54-4818-8f6e-2e1c8463ad76" defaultErrorHandler-ref="common-exception-handler" />
 	<configuration-properties doc:name="Configuration properties" doc:id="4118f3bf-9aba-42c8-8468-fc9f23e459ff" file="properties\common.yaml" />
 	<os:object-store name="ObjStore_Outbound_GITP_PAPVNTL1" doc:name="Object store" doc:id="f3447a8a-42bf-409c-8b05-9cf22cb91903" />
-	<os:object-store name="Object_Store_PAPVNTL1" doc:name="Object store" doc:id="84c499d0-aa83-4b6a-a8bd-bba93f9d0dc3" config-ref="ObjectStore_Config"/>
-	<os:object-store name="Object_Store_PAPVNTL2" doc:name="Object store" doc:id="6c5ad9ae-4b15-42f1-b9cf-43e768aeae46" config-ref="ObjectStore_Config"/>
-	<os:object-store name="Object_Store_PMPC" doc:name="Object store" doc:id="38c9e77c-c3f3-481a-add9-60256553c43a" config-ref="ObjectStore_Config"/>
+	<os:object-store name="ObjStore_Inbound_GITP_PAPVNTL1" doc:name="Object store" doc:id="84c499d0-aa83-4b6a-a8bd-bba93f9d0dc3" config-ref="ObjectStore_Config"/>
+	<os:object-store name="ObjStore_Inbound_GITP_PAPVNTL2" doc:name="Object store" doc:id="6c5ad9ae-4b15-42f1-b9cf-43e768aeae46" config-ref="ObjectStore_Config"/>
+	<os:object-store name="ObjStore_Inbound_GITP_PMPC" doc:name="Object store" doc:id="38c9e77c-c3f3-481a-add9-60256553c43a" config-ref="ObjectStore_Config"/>
 	<http:request-config name="HTTP_Request_For_BackUPFile" doc:name="HTTP Request configuration" doc:id="f711df78-437d-4248-aaf9-0e42599fc9f9" basePath="${http.utilities.papi.basepath}">
 		<http:request-connection host="${http.utilities.papi.host}" maxConnections="${http.pcs.max.connections}" connectionIdleTimeout="${http.pcs.connections.idle.timeout}" responseBufferSize="${http.pcs.response.buffer.size}" protocol="HTTPS">
 			<reconnection >

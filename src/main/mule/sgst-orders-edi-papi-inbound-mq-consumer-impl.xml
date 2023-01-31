@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ibm-mq="http://www.mulesoft.org/schema/mule/ibm-mq"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ibm-mq http://www.mulesoft.org/schema/mule/ibm-mq/current/mule-ibm-mq.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+
+<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flow" doc:id="749dbbef-4d1e-4905-b8ae-d4c8b72afb61" >
+<!-- [STUDIO:"On New Message"]		<ibm-mq:listener doc:name="On New Message" doc:id="8b859737-7f6d-44a3-94cf-2da836ebd288" config-ref="IBM_MQ_Config" destination="GW4.DS352.DAT.SND">
+			<ibm-mq:reply-to-response >
+				<ibm-mq:body ><![CDATA[#[%dw 2.0
+
+import * from dw::core::Binaries
+output application/java
+&#45;&#45;-
+fromBase64(toBase64(payload))]]]></ibm-mq:body>
+			</ibm-mq:reply-to-response>
+		</ibm-mq:listener> [STUDIO] -->
+		<scheduler doc:name="Scheduler" doc:id="f4e37932-2ee9-4d93-ad01-f8b4593cf804" >
+			<scheduling-strategy >
+				<fixed-frequency startDelay="1" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Set TransactionId" doc:id="4342c4d6-d660-4b4a-824a-311b1b015159">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID"><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="c37f4169-ed29-43c5-baf2-6dbf8ddce037" config-ref="JSON_Logger_Config" message="API START: INIT - Received Message.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CONSUMER START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<flow-ref doc:name="Prepare File Name Info" doc:id="fb2e9223-6509-417e-99d5-bc1531ab5063" name="sgst-orders-edi-papi-inbound-common-mq-consumer-impl-flow"/>
+		<ee:transform doc:name="Identify Type" doc:id="256a1380-15be-42ac-a121-615c90146f6c">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable resource="dwl/setInboundPapvntl1DataInterface.dwl" variableName="vDataInterface" />
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Prepare FileName" doc:id="f734dea7-6cb9-4da2-87be-c45e06a213a9" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
+output application/java
+---
+"Z11_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Initiate OS" doc:id="3ac91b55-717a-4e73-a08a-d797f89a0573" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:store doc:name="Store Split File" doc:id="78640aec-0307-47c1-87a5-627d9e250d68" key="#[vars.vFileName]" objectStore="ObjStore_Inbound_GITP_PAPVNTL1"/>
+		<json-logger:logger doc:name="Log - OS Status" doc:id="a7c430e6-59c8-499b-983e-3a68cc32637d" config-ref="JSON_Logger_Config" message="File Processed to Objectstore successfully" tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL1",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</flow>
+	
+	
+	<flow name="sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flow" doc:id="62338189-77fb-4ccc-b5e0-c07adb3f3fda" >
+<!-- [STUDIO:"On New Message"]		<ibm-mq:listener doc:name="On New Message" doc:id="9a023710-527f-4043-93bc-efc00420174b" config-ref="IBM_MQ_Config" destination="GW4.DS354.DAT.SND">
+			<ibm-mq:reply-to-response >
+				<ibm-mq:body ><![CDATA[#[%dw 2.0
+
+import * from dw::core::Binaries
+output application/java
+&#45;&#45;-
+fromBase64(toBase64(payload))]]]></ibm-mq:body>
+			</ibm-mq:reply-to-response>
+		</ibm-mq:listener> [STUDIO] -->
+		<scheduler doc:name="Scheduler" doc:id="3ab64ddc-45b3-40cc-a387-9f2e5f6b8442" >
+			<scheduling-strategy >
+				<fixed-frequency startDelay="2" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Set TransactionId" doc:id="0040850a-e6ef-4160-8fb0-1b8606de4c17">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID"><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="a835d269-910f-4aa3-baee-1e4d3d7ca692" config-ref="JSON_Logger_Config" message="API START: INIT - Received Message.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CONSUMER START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<flow-ref doc:name="Prepare File Name Info" doc:id="7e77d1f0-a263-4d41-929f-8053fc285e07" name="sgst-orders-edi-papi-inbound-common-mq-consumer-impl-flow"/>
+		<ee:transform doc:name="Identify Type" doc:id="7b3cef11-6357-4490-93ce-ac53797bb865">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable resource="dwl/setInboundPapvntl2DataInterface.dwl" variableName="vDataInterface" />
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Prepare FileName" doc:id="75122eae-e91f-4a38-b6d1-7955c89ac5fc" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
+output application/java
+---
+"Z12_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Initiate OS" doc:id="72de9eb7-79ac-4db0-93ba-73f098c4a678" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:store doc:name="Store Split File" doc:id="caf4780c-2ef7-4a83-8422-e1cfabc4b266" key="#[vars.vFileName]" objectStore="ObjStore_Inbound_GITP_PAPVNTL2"/>
+		<json-logger:logger doc:name="Log - OS Status" doc:id="fedcc0e9-42a5-4c9b-9e7f-cfa1fc00722b" config-ref="JSON_Logger_Config" message="File Processed to Objectstore successfully" tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PAPVN-TL2",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</flow>
+	
+	
+	<flow name="sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flow" doc:id="2f9cd2e1-cd9a-43f2-82ea-143bfd8560e9" >
+<!-- [STUDIO:"On New Message"]		<ibm-mq:listener doc:name="On New Message" doc:id="b0b08f5a-7f66-4be7-b128-7a8f621ff911" config-ref="IBM_MQ_Config" destination="GW4.DC002.DAT.SND">
+			<ibm-mq:reply-to-response >
+				<ibm-mq:body ><![CDATA[#[%dw 2.0
+
+import * from dw::core::Binaries
+output application/java
+&#45;&#45;-
+fromBase64(toBase64(payload))]]]></ibm-mq:body>
+			</ibm-mq:reply-to-response>
+		</ibm-mq:listener> [STUDIO] -->
+		<scheduler doc:name="Scheduler" doc:id="a5e83018-7201-478b-9d92-349dce94b06f" >
+			<scheduling-strategy >
+				<fixed-frequency startDelay="3" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Set TransactionId" doc:id="38299d8f-19c0-41e3-b909-e6e303b82d52">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="TransactionID"><![CDATA[%dw 2.0
+output application/java
+---
+uuid()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Start Event" doc:id="d724c67f-250f-4ae7-894e-e4c17fb29a82" config-ref="JSON_Logger_Config" message="API START: INIT - Received Message.">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CONSUMER START",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<flow-ref doc:name="Prepare Files Info" doc:id="dfc7dac8-08ab-4be1-88bf-170f5dbde00b" name="sgst-orders-edi-papi-inbound-common-mq-consumer-impl-flow"/>
+		<ee:transform doc:name="Identify Type" doc:id="c66a4ce7-6541-4707-8fe2-86597553e04a">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable resource="dwl/setInboundPmpcDataInterface.dwl" variableName="vDataInterface" />
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Prepare FileName" doc:id="6f80bc80-7710-4b49-adb3-5bbbc59b2c21" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="vFileName" ><![CDATA[%dw 2.0
+output application/java
+---
+"PMPC_" ++ vars.vDataInterface ++"_"++ vars.vTransHeaderInfo.MessageSequence ++"_"++ vars.vTransHeaderInfo.TotalMessageSplits ++ "_" ++ now() as String {format: "ddMMyyyyHHmm"}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="Log - Initiate OS" doc:id="e9415141-60bc-484c-aac1-998850405648" config-ref="JSON_Logger_Config" message="Initiate Objectstore to store the File">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "INIT"
+}]]]></json-logger:content>
+		</json-logger:logger>
+		<os:store doc:name="Store Split File" doc:id="7cd579fd-864d-4894-8824-5e0555c3d34d" key="#[vars.vFileName]" objectStore="ObjStore_Inbound_GITP_PMPC"/>
+		<json-logger:logger doc:name="Log - OS Status" doc:id="0d34bb1b-dd69-44ac-8b4e-7c5dba557053" config-ref="JSON_Logger_Config" message="File Processed to Objectstore successfully" tracePoint="END">
+			<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+   "flowDirection": "INBOUND",
+   "source": "IBM MQ CONSUMER",
+   "target": "",
+   "fileName":  "" ,
+   "errorCode": "",
+   "errorMessage": "",
+   "subsidiary": "PMPC",
+   "apiName": "sgst-orders-edi-papi",
+   "action": "CALL ObjectStoreV2",
+   "status": "SUCCESS"
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</flow>
+	
+	<sub-flow name="sgst-orders-edi-papi-inbound-common-mq-consumer-impl-flow" doc:id="ae966b5b-2423-4441-9bbd-58ed44f4f7c1" >
+	<ee:transform doc:name="Temp Remove" doc:id="26cb3ad1-c4cc-4de8-b6aa-d549f2e683c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+readUrl("classpath://VN12_SAP_GITP R2_20230112191935","application/csv",{header:false})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+<!-- [STUDIO:"Save Request"]				<ee:transform doc:name="Save Request" doc:id="951d0a70-4abf-4d77-9508-0eca1163e9d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+readUrl(payload,"application/csv",{header:false})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform> [STUDIO] -->
+		<ee:transform doc:name="Get TransHeader" doc:id="dbc7ee17-b68c-4411-984b-54cdd4d0872e">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="vTransHeader"><![CDATA[%dw 2.0
+output application/json
+---
+payload[0].column_0[0 to 155]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Content" doc:id="3e527150-cf70-4819-b49c-9ae0eff5dcd8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+write((payload[0].column_0[156 to -1]), "application/java")]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Set Transaction Header" doc:id="30c61bd8-68c2-43c1-a414-b7bba157acca" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="vTransHeaderInfo" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    ApplicationIdCode: vars.vTransHeader[24 to 25],
+    DataTypeCode: trim(vars.vTransHeader[26 to 37]),
+    MessageSequence: vars.vTransHeader[101 to 102],
+    TotalMessageSplits: vars.vTransHeader[98 to 100]
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+	
+</mule>
