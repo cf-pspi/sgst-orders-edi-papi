@@ -1,6 +1,6 @@
 %dw 2.0
 import * from dw::core::Strings
-output application/java
+output application/json deferred=true
 var trim=if (vars.fileDetails.externalSystem == "EPRO") Mule::p("sap.outbound.trim.length.epro")
 else if (vars.fileDetails.externalSystem == "IPS") Mule::p("sap.outbound.trim.length.ips")
 else if (vars.fileDetails.externalSystem == "ECITA") Mule::p("sap.outbound.trim.length.ecita")
