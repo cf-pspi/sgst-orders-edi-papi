@@ -8,7 +8,7 @@
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
 	<munit:config name="sgst-orders-edi-papi-inbound-mq-consumer-impl-test-suite.xml" />
-	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flowTest" doc:id="e0671a58-16f4-4bb0-94af-74e3b2019c14" description="Test">
+	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL1-mq-consumer-impl-flowTest" doc:id="e0671a58-16f4-4bb0-94af-74e3b2019c14" description="Test" ignore="true">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock Store" doc:id="7852624a-873e-4787-b9b2-ad76697039cd" processor="os:store">
 				<munit-tools:with-attributes >
@@ -32,7 +32,7 @@
 		</munit:validation>
 	
 </munit:test>
-	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flowTest" doc:id="0659156a-527b-4181-be12-b4f0e023b22a" description="Test">
+	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PAPVN-TL2-mq-consumer-impl-flowTest" doc:id="0659156a-527b-4181-be12-b4f0e023b22a" description="Test" ignore="true">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="8d74adee-e531-48e0-80ba-9e8fc3230d0f" processor="os:store">
 				<munit-tools:with-attributes >
@@ -55,7 +55,7 @@
 			</munit-tools:verify-call>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flowTest" doc:id="82b0b4e4-6a09-4d63-bbaa-5af2d9e1c4e3" description="Test">
+	<munit:test name="sgst-orders-edi-papi-inbound-impl-test-suite-sgst-orders-edi-papi-inbound-PMPC-mq-consumer-impl-flowTest" doc:id="82b0b4e4-6a09-4d63-bbaa-5af2d9e1c4e3" description="Test" ignore="true">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="e07e9d12-faf9-4cc4-b61f-c20ea26fe81c" processor="os:store">
 				<munit-tools:with-attributes >

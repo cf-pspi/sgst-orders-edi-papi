@@ -66,7 +66,7 @@ http:
     sapi:
       client_id: 'cb6fea3d3d814a43a7042b301698194d'
       client_secret: '671B051dA51146B8A6eA36490C1B2F05'
-      host: 'sgst-edifile-sap-sapi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      host: 'sgst-edifile-sap-sapi-sit-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
       basepath: '/api/v1'
       purchaseOrdersPath: '/po-response'

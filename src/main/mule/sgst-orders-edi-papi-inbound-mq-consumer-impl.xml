@@ -308,22 +308,22 @@ output application/json
 	</flow>
 	
 	<sub-flow name="sgst-orders-edi-papi-inbound-common-mq-consumer-impl-flow" doc:id="ae966b5b-2423-4441-9bbd-58ed44f4f7c1" >
-	<ee:transform doc:name="Temp Remove" doc:id="26cb3ad1-c4cc-4de8-b6aa-d549f2e683c5" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-readUrl("classpath://VN12_SAP_GITP R2_20230112191935","application/csv",{header:false})]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-<!-- [STUDIO:"Save Request"]				<ee:transform doc:name="Save Request" doc:id="951d0a70-4abf-4d77-9508-0eca1163e9d5" >
+<!-- [STUDIO:"Temp Remove"]	<ee:transform doc:name="Temp Remove" doc:id="26cb3ad1-c4cc-4de8-b6aa-d549f2e683c5" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 &#45;&#45;-
-readUrl(payload,"application/csv",{header:false})]]></ee:set-payload>
+readUrl("classpath://VN12_SAP_GITP R2_20230112191935","application/csv",{header:false})]]></ee:set-payload>
 			</ee:message>
 		</ee:transform> [STUDIO] -->
+				<ee:transform doc:name="Save Request" doc:id="951d0a70-4abf-4d77-9508-0eca1163e9d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+readUrl(payload,"application/csv",{header:false})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<ee:transform doc:name="Get TransHeader" doc:id="dbc7ee17-b68c-4411-984b-54cdd4d0872e">
 			<ee:message>
 			</ee:message>
