@@ -163,7 +163,7 @@ output application/json
    "status": Mule::p("api.status.initiate")
 }]]]></json-logger:content>
 				</json-logger:logger>
-				<http:request method="POST" doc:name="Request PAPVNTL2" doc:id="711ea4ef-fdd6-4465-868e-8ad236ae7bc6" config-ref="PAPVNTL2_HTTP_Request_Configuration" path="${http.papvntl2.sapi.purchaseOrdersPath}">
+				<http:request method="POST" doc:name="Request PAPVNTL2" doc:id="711ea4ef-fdd6-4465-868e-8ad236ae7bc6" config-ref="PAPVNTL2_HTTP_Request_Configuration" path="#[vars.resourcePath]">
 					<http:headers ><![CDATA[#[output application/java
 ---
 {
@@ -218,7 +218,7 @@ output application/json
    "status": Mule::p("api.status.initiate")
 }]]]></json-logger:content>
 				</json-logger:logger>
-				<http:request method="POST" doc:name="Request PMPC" doc:id="d25596c2-d7c5-400c-bef9-07c915d1f5e8" config-ref="PMPC_HTTP_Request_Configuration" path="${http.pmpc.sapi.purchaseOrdersPath}">
+				<http:request method="POST" doc:name="Request PMPC" doc:id="d25596c2-d7c5-400c-bef9-07c915d1f5e8" config-ref="PMPC_HTTP_Request_Configuration" path="#[vars.resourcePath]">
 				<http:headers ><![CDATA[#[output application/java
 ---
 {

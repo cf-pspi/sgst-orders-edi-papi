@@ -29,7 +29,7 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 			</tls:context>
 		</http:listener-connection>
     </http:listener-config>
-	<!-- <api-gateway:autodiscovery apiId="${api.autodiscovery.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="bc5f4b4c-7303-4988-9784-4190dd3eae28" flowRef="sgst-pp-rationalization-edi-eapi-main" /> -->
+	<api-gateway:autodiscovery apiId="${api.autodiscovery.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="bc5f4b4c-7303-4988-9784-4190dd3eae28" flowRef="sgst-orders-edi-papi-main" />
 	<configuration-properties doc:name="Configuration properties" doc:id="057932e3-90cf-4dec-86a0-627e71a0055d" file="properties/${mule.env}.yaml" />
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="db4504d2-4231-4906-875a-1cbdd1f6fe3a" file="properties/${mule.env}.yaml" key="${secret.key}" />
 	<configuration doc:name="Configuration" doc:id="de615457-ca54-4818-8f6e-2e1c8463ad76" defaultErrorHandler-ref="common-exception-handler" />

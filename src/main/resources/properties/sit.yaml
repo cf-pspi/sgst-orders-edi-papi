@@ -41,7 +41,7 @@ http:
       client_secret: '![KfFIclQYIGF3eSnwW/f+hbJi79rjG0vHfEuxjTqbLf8oauOU624866d+rImZeyHq]'
       host: 'sgst-pmpc-gitp-sapi-sit-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
-      basepath: '/api'
+      basepath: '/api/v1'
       purchaseOrdersPath: '/purchase-orders'
       purchaseResultsPath: '/purchase-results'
       fplPath: '/fpl'
@@ -56,7 +56,7 @@ http:
     papi:
       client_id: 'cb6fea3d3d814a43a7042b301698194d'
       client_secret: '671B051dA51146B8A6eA36490C1B2F05'
-      host: 'sgst-audit-papi-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
+      host: 'sgst-audit-papi-sit-5ircui.internal-cci3mz.sgp-s1.cloudhub.io'
       port: '8081'   
       basepath: '/api/v1'
       path:
@@ -76,8 +76,8 @@ http:
 
   ob:
     tokenURL: 'https://anypoint.mulesoft.com/accounts/oauth2/token'
-    client_id: 'ADAM_INTEGRATIONS_358a56d7-94c9-4233-b04a-67c23ec7820e'
-    client_secret: '![b9WQfS8Ea4oVruvJMcFflNLMKX0VaSQTVPP7EfcR3Ya39tVzWBH4+EFlV71nRJut]'
+    client_id: 'ADAM_INTEGRATIONS_1a44a619-4e75-48f8-903d-48864d973cce'
+    client_secret: '![XXjAlnQaeEJUEPLNOC5bzYB6v04gfJgARrl081xIR8ItlA+OfgxHZVW+spC0sq+D]'
     host: 'object-store-ap-southeast-1.anypoint.mulesoft.com'
     port: '443'
     basePath: '/api/v1'
@@ -85,7 +85,7 @@ http:
     keyValuePath: '/organizations/{orgId}/environments/{envId}/stores/{storeId}/partitions/{partitionId}/keys/{keyId}'
     orgId: '69195e0c-f771-4438-a4b2-58237c4947b6'
     envId: '62eee220-fe29-44e0-b5cf-199884ed311b'
-    storeId: 'APP_358a56d7-94c9-4233-b04a-67c23ec7820e__defaultPersistentObjectStore'
+    storeId: 'APP_1a44a619-4e75-48f8-903d-48864d973cce__defaultPersistentObjectStore'
     partitionId:
       papvntl1: 'ObjStore_Outbound_GITP_PAPVNTL1'
       papvntl2: 'ObjStore_Outbound_GITP_PAPVNTL2'
