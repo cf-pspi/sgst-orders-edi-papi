@@ -126,9 +126,6 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 	<error-handler name="common-exception-handler" doc:id="620168ea-5f75-4860-b6e0-5ffeaf5d7084" >
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="254b4aa3-f7dd-49ab-8917-36be80077c18" type="COMPRESSION:COULD_NOT_DECOMPRESS, COMPRESSION:INVALID_ARCHIVE, COMPRESSION:TOO_MANY_ENTRIES" >
 			<flow-ref doc:name="global-config-propagate-error" doc:id="871c9151-febb-41d7-a0cf-81c2fc97968e" name="global-config-propagate-error"/>
-			<async doc:name="Async" doc:id="4ea297b2-2212-44cc-bcf1-3abdc44899a1" >
-				<flow-ref doc:name="global-config-email-notification" doc:id="54df945f-7c1e-44db-b470-afcdc4ee43d9" name="global-config-email-notification" />
-			</async>
 		
 </on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="155be3ff-bd5f-44a2-add6-1abcd54a302d" type="APIKIT:BAD_REQUEST">
@@ -165,16 +162,10 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 </on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="276e3c58-4a42-441e-8287-79a36755e654" type="HTTP:GATEWAY_TIMEOUT">
 			<flow-ref doc:name="global-config-propagate-error" doc:id="794495eb-8971-4051-b978-add358b8a3e7" name="global-config-propagate-error"/>
-			<async doc:name="Async" doc:id="e6dda620-861f-4f24-9069-3598213e44a5" >
-				<flow-ref doc:name="global-config-email-notification" doc:id="a049dc75-b74f-427d-baa0-b515936600f6" name="global-config-email-notification" />
-			</async>
 		
 </on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f6cbd65f-e161-4ff0-8eff-17e9a16ae1e8" type="ANY">
 			<flow-ref doc:name="global-config-propagate-error" doc:id="8ce30dd7-edcb-4aa2-bd96-c4f6b5e76f53" name="global-config-propagate-error"/>
-			<async doc:name="Async" doc:id="13f00813-6776-4beb-b5e8-56d91dfe4277">
-			<flow-ref doc:name="global-config-email-notification" doc:id="e4d7af15-a832-4899-9f5b-4f32556d79cb" name="global-config-email-notification" />
-		</async>
 		
 </on-error-propagate>
 	</error-handler>
@@ -192,34 +183,4 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 		</json-logger:logger>
 	
 </sub-flow>
-	<sub-flow name="global-config-email-notification" doc:id="7e1c05b9-ba9f-459f-b277-8ffa0696091e" >
-		<ee:transform doc:name="Set Request" doc:id="b6719c45-129a-402a-9c4a-4dd234096f7c" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
-var seperator = "/"
----
-{
-    "apiName": app.name default "",
-    "correlationID": vars.TransactionID default "",
-    "toAddress": Mule::p('notification.email.toaddress') default [],
-    "fileName": vars.fileDetails.flatFileName default "NA",
-    "filePath": ("/" ++ Mule::p('api.flowDirection')  ++ "/" ++ lower(vars.fileDetails.subsidiary) ++ "/" ++ lower(vars.fileDetails.externalSystem) ++ vars.sapiHttpPath  ++ "/" ++ lower(vars.fileDetails.flatFileName) ++ "." ++ vars.fileDetails.flatFileExtension) as String,
-    "errorDetails":{
-        "errorCode":payload.errorCode default "",
-        "errorDesc":payload.errorMessage default ""
-   }}
- ]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<http:request method="POST" doc:name="send-email-notification" doc:id="2f9d3c72-56fe-4e67-81c5-2f07bd34bd6d" config-ref="HTTP_Request_For_BackUPFile" path="${http.utilities.papi.path.notification}" outputMimeType="application/json">
-			<http:headers ><![CDATA[#[output application/java
----
-{
-
-"X-Client-ID": Mule::p('http.utilities.papi.client_id'),
-"X-Client-Secret": Mule::p('http.utilities.papi.client_secret')
-}]]]></http:headers>
-		</http:request>
-	</sub-flow>
 </mule>
